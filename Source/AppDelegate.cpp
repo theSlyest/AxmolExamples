@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 #include "AppDelegate.h"
-#include "MainScene.h"
+#include "SudokuScene.h"
 
 #define USE_AUDIO_ENGINE 1
 
@@ -38,7 +38,7 @@
 
 using namespace ax;
 
-static ax::Size designResolutionSize = ax::Size(1280, 720);
+static ax::Size designResolutionSize = ax::Size(720, 720);
 
 AppDelegate::AppDelegate() {}
 
@@ -84,7 +84,7 @@ bool AppDelegate::applicationDidFinishLaunching()
 
 #if !_AX_TESTS
     // create a scene. it's an autorelease object
-    auto scene = utils::createInstance<MainScene>();
+    auto scene = utils::createInstance<SudokuScene>();
 
     // run
     director->runWithScene(scene);
