@@ -61,14 +61,14 @@ bool MainScene::init()
     auto closeItem = MenuItemImage::create("CloseNormal.png", "CloseSelected.png",
                                            AX_CALLBACK_1(MainScene::menuCloseCallback, this));
 
-    if (closeItem == nullptr || closeItem->getContentSize().width <= 0 || closeItem->getContentSize().height <= 0)
+    if (closeItem == nullptr || closeItem->getContentSize().x <= 0 || closeItem->getContentSize().y <= 0)
     {
         problemLoading("'CloseNormal.png' and 'CloseSelected.png'");
     }
     else
     {
-        float x = safeOrigin.x + safeArea.size.width - closeItem->getContentSize().width / 2;
-        float y = safeOrigin.y + closeItem->getContentSize().height / 2;
+        float x = safeOrigin.x + safeArea.size.x - closeItem->getContentSize().x / 2;
+        float y = safeOrigin.y + closeItem->getContentSize().y / 2;
         closeItem->setPosition(Vec2(x, y));
     }
 
@@ -111,7 +111,7 @@ bool MainScene::init()
     {
         // position the label on the center of the screen
         label->setPosition(
-            Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height - label->getContentSize().height));
+            Vec2(origin.x + visibleSize.x / 2, origin.y + visibleSize.y - label->getContentSize().y));
 
         // add the label as a child to this layer
         this->addChild(label, 1);
@@ -125,7 +125,7 @@ bool MainScene::init()
     else
     {
         // position the sprite on the center of the screen
-        sprite->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+        sprite->setPosition(Vec2(visibleSize.x / 2 + origin.x, visibleSize.y / 2 + origin.y));
 
         // add the sprite as a child to this layer
         this->addChild(sprite, 0);
