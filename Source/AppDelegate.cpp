@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 #include "AppDelegate.h"
-#include "MainScene.h"
+#include "SignalLockScene.h"
 
 #define USE_AUDIO_ENGINE 1
 
@@ -38,7 +38,7 @@
 
 using namespace ax;
 
-static ax::Size designResolutionSize = ax::Size(1280, 720);
+static ax::Size designResolutionSize = ax::Size(1024, 1024);
 
 AppDelegate::AppDelegate() {}
 
@@ -73,7 +73,7 @@ bool AppDelegate::applicationDidFinishLaunching()
     }
 
     // turn on display FPS
-    director->setStatsDisplay(true);
+    // director->setStatsDisplay(true);
 
     // set FPS. the default value is 1.0/60 if you don't call this
     director->setAnimationInterval(1.0f / 60);
@@ -84,7 +84,7 @@ bool AppDelegate::applicationDidFinishLaunching()
 
 #if !_AX_TESTS
     // create a scene. it's an autorelease object
-    auto scene = utils::createInstance<MainScene>();
+    auto scene = utils::createInstance<SignalLockScene>();
 
     // run
     director->runWithScene(scene);
