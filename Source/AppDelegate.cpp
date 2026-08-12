@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 #include "AppDelegate.h"
-#include "MainScene.h"
+#include "SideShooterScene.h"
 
 #define USE_AUDIO_ENGINE 1
 
@@ -84,7 +84,7 @@ bool AppDelegate::applicationDidFinishLaunching()
 
 #if !_AX_TESTS
     // create a scene. it's an autorelease object
-    auto scene = utils::createInstance<MainScene>();
+    auto scene = utils::createInstance<SideShooterScene>();
 
     // run
     director->runWithScene(scene);
