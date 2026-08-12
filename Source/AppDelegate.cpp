@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 #include "AppDelegate.h"
-#include "MainScene.h"
+#include "TeleporterScene.h"
 
 #define USE_AUDIO_ENGINE 1
 
@@ -38,7 +38,7 @@
 
 using namespace ax;
 
-static ax::Size designResolutionSize = ax::Size(1280, 720);
+static Vec2 designResolutionSize = Vec2(1280, 720);
 
 AppDelegate::AppDelegate() {}
 
@@ -59,13 +59,13 @@ void AppDelegate::initGfxContextAttrs()
 bool AppDelegate::applicationDidFinishLaunching()
 {
     // initialize director
-    auto director = Director::getInstance();
-    auto renderView   = director->getRenderView();
+    const auto director = Director::getInstance();
+    auto renderView     = director->getRenderView();
     if (!renderView)
     {
 #if (AX_TARGET_PLATFORM != AX_PLATFORM_ANDROID) && (AX_TARGET_PLATFORM != AX_PLATFORM_IOS)
         renderView = RenderViewImpl::createWithRect(
-            "Micro1Lab", ax::Rect(0, 0, designResolutionSize.width, designResolutionSize.height));
+            "Micro1Lab", Rect(0, 0, designResolutionSize.x, designResolutionSize.y));
 #else
         renderView = RenderViewImpl::create("Micro1Lab");
 #endif
@@ -73,18 +73,18 @@ bool AppDelegate::applicationDidFinishLaunching()
     }
 
     // turn on display FPS
-    director->setStatsDisplay(true);
+    // director->setStatsDisplay(true);
 
     // set FPS. the default value is 1.0/60 if you don't call this
     director->setAnimationInterval(1.0f / 60);
 
     // Set the design resolution
-    renderView->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height,
+    renderView->setDesignResolutionSize(designResolutionSize.x, designResolutionSize.y,
                                     ResolutionPolicy::SHOW_ALL);
 
 #if !_AX_TESTS
     // create a scene. it's an autorelease object
-    auto scene = utils::createInstance<MainScene>();
+    auto scene = utils::createInstance<TeleporterScene>();
 
     // run
     director->runWithScene(scene);
@@ -127,7 +127,7 @@ int AppDelegate::run(int argc, char** argv) {
     }
     fflush(stdout);
 
-    ax::Director::getInstance()->init();
+    Director::getInstance()->init();
 
     doctest::Context context;
 
