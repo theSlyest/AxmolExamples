@@ -4,11 +4,6 @@
 
 USING_NS_AX;
 
-Scene* SideShooterScene::createScene()
-{
-    return SideShooterScene::create();
-}
-
 // on "init" you need to initialize your instance
 bool SideShooterScene::init()
 {
@@ -60,10 +55,8 @@ void SideShooterScene::update(float dt)
 
 void SideShooterScene::preloadSounds()
 {
-#if USE_AUDIO_ENGINE
     AudioEngine::preload("bullet.wav");
     AudioEngine::preload("explosion.wav");
-#endif
 }
 
 void SideShooterScene::playSound(const std::string &path)
@@ -315,13 +308,13 @@ bool SideShooterScene::SpritesCollidedWithAlpha(Sprite* pSpriteA, Sprite* pSprit
 {
     //------------------------------
     // Find the overlapping intersection rectangle in world space
-    Rect rBoundingBoxA = pSpriteA->getBoundingBox();
-    Rect rBoundingBoxB = pSpriteB->getBoundingBox();
+    const Rect rBoundingBoxA = pSpriteA->getBoundingBox();
+    const Rect rBoundingBoxB = pSpriteB->getBoundingBox();
 
-    float fIntersectionLeft   = std::max(rBoundingBoxA.getMinX(), rBoundingBoxB.getMinX());
-    float fIntersectionRight  = std::min(rBoundingBoxA.getMaxX(), rBoundingBoxB.getMaxX());
-    float fIntersectionBottom = std::max(rBoundingBoxA.getMinY(), rBoundingBoxB.getMinY());
-    float fIntersectionTop    = std::min(rBoundingBoxA.getMaxY(), rBoundingBoxB.getMaxY());
+    const float fIntersectionLeft   = std::max(rBoundingBoxA.getMinX(), rBoundingBoxB.getMinX());
+    const float fIntersectionRight  = std::min(rBoundingBoxA.getMaxX(), rBoundingBoxB.getMaxX());
+    const float fIntersectionBottom = std::max(rBoundingBoxA.getMinY(), rBoundingBoxB.getMinY());
+    const float fIntersectionTop    = std::min(rBoundingBoxA.getMaxY(), rBoundingBoxB.getMaxY());
 
     //------------------------------
     // Extract image data to access raw alpha channels
@@ -333,15 +326,15 @@ bool SideShooterScene::SpritesCollidedWithAlpha(Sprite* pSpriteA, Sprite* pSprit
     pImageA->initWithImageFile(pSpriteA->getName());
     pImageB->initWithImageFile(pSpriteB->getName());
 
-    unsigned char* pDataA = pImageA->getData();
-    unsigned char* pDataB = pImageB->getData();
+    const unsigned char* pDataA = pImageA->getData();
+    const unsigned char* pDataB = pImageB->getData();
 
-    int imgWidthA  = pImageA->getWidth();
-    int imgHeightA = pImageA->getHeight();
-    int imgWidthB  = pImageB->getWidth();
-    int imgHeightB = pImageB->getHeight();
+    const int imgWidthA  = pImageA->getWidth();
+    const int imgHeightA = pImageA->getHeight();
+    const int imgWidthB  = pImageB->getWidth();
+    const int imgHeightB = pImageB->getHeight();
 
-    float step = 1.0f;
+    constexpr float step = 1.0f;
 
     //------------------------------
     // Scan the intersection window pixel by pixel
@@ -349,12 +342,12 @@ bool SideShooterScene::SpritesCollidedWithAlpha(Sprite* pSpriteA, Sprite* pSprit
     {
         for ( float fX = fIntersectionLeft; fX < fIntersectionRight; fX += step )
         {
-            Vec2 parentPoint(fX, fY);
+            const Vec2 parentPoint(fX, fY);
 
             //------------------------------
             // Map world coordinates back to local texture pixels
-            Vec2 vLocalPointA = pSpriteA->convertToNodeSpace(parentPoint);
-            Vec2 vLocalPointB = pSpriteB->convertToNodeSpace(parentPoint);
+            const Vec2 vLocalPointA = pSpriteA->convertToNodeSpace(parentPoint);
+            const Vec2 vLocalPointB = pSpriteB->convertToNodeSpace(parentPoint);
 
             //------------------------------
             // Convert to standard image matrix index (invert Y if coordinates are flipped)
@@ -475,7 +468,7 @@ void SideShooterScene::spawn(const int index) const
     if (objIndex >= 8)
         return;
 
-    auto obj = _objects[objIndex];
+    const auto obj = _objects[objIndex];
     obj->setTexture(OBJECT_TEX[index]);
     obj->setName(OBJECT_TEX[index]);
     obj->setTag(index);

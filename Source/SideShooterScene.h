@@ -10,8 +10,6 @@ struct Rotation {
 class SideShooterScene : public ax::Scene
 {
 public:
-    static ax::Scene* createScene();
-    
     // implement the "static create()" method manually
     CREATE_FUNC(SideShooterScene);
 
@@ -74,7 +72,7 @@ private:
     ax::Label* _timerLbl = nullptr;
     ax::Label* _gameOverLbl = nullptr;
 
-    void preloadSounds();
+    static void preloadSounds();
     static void playSound(const std::string& path);
 
     void preloadTextures() const;
