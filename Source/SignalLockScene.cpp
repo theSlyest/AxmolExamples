@@ -139,7 +139,7 @@ void SignalLockScene::reset()
     scheduleUpdate();
 }
 
-void SignalLockScene::onKeyPressed(EventKeyboard::KeyCode key)
+void SignalLockScene::onKeyPressed(const EventKeyboard::KeyCode key)
 {
     switch (key)
     {
