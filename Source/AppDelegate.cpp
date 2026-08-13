@@ -65,9 +65,9 @@ bool AppDelegate::applicationDidFinishLaunching()
     {
 #if (AX_TARGET_PLATFORM != AX_PLATFORM_ANDROID) && (AX_TARGET_PLATFORM != AX_PLATFORM_IOS)
         renderView = RenderViewImpl::createWithRect(
-            "Micro1Lab", Rect(0, 0, designResolutionSize.x, designResolutionSize.y));
+            "AxmolExamples", Rect(0, 0, designResolutionSize.x, designResolutionSize.y));
 #else
-        renderView = RenderViewImpl::create("Micro1Lab");
+        renderView = RenderViewImpl::create("AxmolExamples");
 #endif
         director->setRenderView(renderView);
     }
