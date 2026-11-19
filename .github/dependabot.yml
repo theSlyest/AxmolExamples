@@ -1,0 +1,7 @@
+version: 2
+updates:
+  # The Android Gradle build is the only part of the project with package dependencies.
+  - package-ecosystem: "gradle"
+    directory: "/proj.android"
+    schedule:
+      interval: "weekly"
