@@ -161,6 +161,22 @@ TEST_SUITE("GridModel explosions") {
         CHECK_FALSE(grid.isOnFire(4, 1));
     }
 
+    TEST_CASE("fire is stopped by the first wall in every direction") {
+        GridModel grid;
+        grid.setState(5, 5, TileState::SAFE); // the middle of a field of walls
+
+        grid.detonate(5, 5);
+
+        for (const auto& [col, row] : { GridCoords(4, 5), GridCoords(6, 5), GridCoords(5, 4), GridCoords(5, 6) }) {
+            CHECK(grid.getState(col, row) == TileState::SAFE); // destroyed
+            CHECK(grid.isOnFire(col, row));
+        }
+        for (const auto& [col, row] : { GridCoords(3, 5), GridCoords(7, 5), GridCoords(5, 3), GridCoords(5, 7) }) {
+            CHECK(grid.getState(col, row) == TileState::WALL); // shielded
+            CHECK_FALSE(grid.isOnFire(col, row));
+        }
+    }
+
     TEST_CASE("the blast reaches BLAST_RANGE tiles and no more") {
         GridModel grid;
         openRow(grid, 8);
