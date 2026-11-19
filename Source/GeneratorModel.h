@@ -9,7 +9,7 @@ class GeneratorModel
 {
 public:
     // `rate` is how much of the full range the value covers per second.
-    explicit GeneratorModel(float rate) : _rate(rate) {}
+    explicit GeneratorModel(const float rate) : _rate(rate) {}
 
     // Jump to `value` (clamped to 0..1) without gliding.
     void reset(float value);
@@ -19,8 +19,8 @@ public:
 
     void update(float dt);
 
-    float getValue() const { return _value; }
-    float getTarget() const { return _target; }
+    [[nodiscard]] float getValue() const { return _value; }
+    [[nodiscard]] float getTarget() const { return _target; }
 
 private:
     static constexpr float STEP = 0.25f; // how far one click moves the target

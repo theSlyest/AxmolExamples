@@ -62,5 +62,5 @@ private:
 
     static void addLegendLabel(ax::Node* legend, const std::string& text, float x);
     void addSample();
-    void redraw();
+    void redraw() const;
 };

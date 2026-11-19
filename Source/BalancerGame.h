@@ -41,14 +41,14 @@ public:
     void increase(size_t generator);
     void decrease(size_t generator);
 
-    size_t getGeneratorCount() const { return _generators.size(); }
-    float getGeneratorValue(size_t generator) const { return _generators[generator].getValue(); }
-    float getSupply() const { return _supply; }
-    float getDemand() const { return _demand.getValue(); }
-    float getTolerance() const { return _config.tolerance; }
-    float getUpTime() const { return _upTime; }
-    int getStrikes() const { return _strikes; }
-    bool isOver() const { return _over; }
+    [[nodiscard]] size_t getGeneratorCount() const { return _generators.size(); }
+    [[nodiscard]] float getGeneratorValue(size_t generator) const { return _generators[generator].getValue(); }
+    [[nodiscard]] float getSupply() const { return _supply; }
+    [[nodiscard]] float getDemand() const { return _demand.getValue(); }
+    [[nodiscard]] float getTolerance() const { return _config.tolerance; }
+    [[nodiscard]] float getUpTime() const { return _upTime; }
+    [[nodiscard]] int getStrikes() const { return _strikes; }
+    [[nodiscard]] bool isOver() const { return _over; }
 
 private:
     Config _config;

@@ -129,7 +129,7 @@ void BalancerChart::addSample()
     _headX = std::min(static_cast<float>(_sampleIndex) * SPEED_X * SAMPLE_INTERVAL, _contentSize.width * HEAD_X);
 }
 
-void BalancerChart::redraw()
+void BalancerChart::redraw() const
 {
     _bandChart->clear();
     _demandChart->clear();

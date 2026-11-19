@@ -6,14 +6,14 @@
 #include <random>
 
 namespace {
-float defaultRandom(const float min, const float max)
-{
-    static std::mt19937 engine{ std::random_device{}() };
-    if (max <= min)
-        return min;
+    float defaultRandom(const float min, const float max)
+    {
+        static std::mt19937 engine{ std::random_device{}() };
+        if (max <= min)
+            return min;
 
-    return std::uniform_real_distribution<float>(min, max)(engine);
-}
+        return std::uniform_real_distribution<float>(min, max)(engine);
+    }
 }
 
 DemandCurve::DemandCurve(Random random) : _random(random ? std::move(random) : Random(defaultRandom))

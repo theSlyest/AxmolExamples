@@ -22,7 +22,7 @@ public:
 
     void update(float dt);
 
-    float getValue() const { return _value; }
+    [[nodiscard]] float getValue() const { return _value; }
 
 private:
     static constexpr float PERIOD_DELAY = 3.0f; // seconds between two period decreases
