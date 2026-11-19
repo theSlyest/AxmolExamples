@@ -2,8 +2,8 @@
 
 #include "2d/DrawNode.h"
 #include "BomberBomb.h"
+#include "GridModel.h"
 
-enum class TileState { SAFE, WALL, STEEL, BOMB };
 
 class GridTile : public ax::DrawNode
 {
