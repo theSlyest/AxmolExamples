@@ -2,7 +2,7 @@
 
 #include "2d/Menu.h"
 #include "2d/MenuItem.h"
-#include "base/UTF8.h"
+#include "fmt/format.h"
 
 USING_NS_AX;
 
@@ -51,7 +51,7 @@ bool BalancerGameOverLayer::init()
 
 void BalancerGameOverLayer::show(const int upTime, const int best)
 {
-    _upTimeLbl->setString(StringUtils::format("Uptime banked: %03ds", upTime));
-    _bestLbl->setString(StringUtils::format("Best: %03ds", best));
+    _upTimeLbl->setString(fmt::format("Uptime banked: {:03d}s", upTime));
+    _bestLbl->setString(fmt::format("Best: {:03d}s", best));
     setVisible(true);
 }

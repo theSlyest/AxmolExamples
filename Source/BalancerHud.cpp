@@ -1,6 +1,6 @@
 #include "BalancerHud.h"
 
-#include "base/UTF8.h"
+#include "fmt/format.h"
 
 USING_NS_AX;
 
@@ -48,7 +48,7 @@ bool BalancerHud::init(const Vec2& size)
 
 void BalancerHud::setUpTime(const float seconds) const
 {
-    _upTime->setValue(StringUtils::format("%03ds", static_cast<int>(seconds)));
+    _upTime->setValue(fmt::format("{:03d}s", static_cast<int>(seconds)));
 }
 
 void BalancerHud::setStrikes(const int strikes) const
@@ -58,7 +58,7 @@ void BalancerHud::setStrikes(const int strikes) const
 
 void BalancerHud::setBest(const int seconds) const
 {
-    _best->setValue(StringUtils::format("%03ds", seconds));
+    _best->setValue(fmt::format("{:03d}s", seconds));
 }
 
 float BalancerHud::getBottom() const

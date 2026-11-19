@@ -1,6 +1,7 @@
 #include "BalancerChart.h"
 
 #include "Director.h"
+#include "fmt/format.h"
 #include "2d/ClippingNode.h"
 
 USING_NS_AX;
@@ -166,5 +167,5 @@ void BalancerChart::reset(const float initialValue)
 
 void BalancerChart::setGraceTime(const float time) const
 {
-    _graceLbl->setString(StringUtils::format("%.1fs", time));
+    _graceLbl->setString(fmt::format("{:.1f}s", time));
 }
