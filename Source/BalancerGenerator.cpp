@@ -60,7 +60,7 @@ bool BalancerGenerator::init(const Color4F &color, const std::string &name)
     // LABEL
     _label = Label::createWithTTF(name, "fonts/arial.ttf", 20.0f);
     _label->setTextColor(Color4B(color));
-    _label->setPosition(SIZE.width / 2.0f, 64.0f);
+    _label->setPosition(SIZE.width / 2.0f, 60.0f);
     addChild(_label);
 
     // PROGRESS BAR
