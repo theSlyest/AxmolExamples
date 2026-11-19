@@ -1,13 +1,11 @@
 #pragma once
 
-#include "BomberActor.h"
+#include "2d/DrawNode.h"
 
-// A green circle that roams the grid; its direction comes from an EnemyBrain.
-class BomberEnemy : public BomberActor
+// How an enemy looks: a green circle. The game moves it by setting its position.
+class BomberEnemy : public ax::DrawNode
 {
 public:
-    static constexpr float SPEED = 100.0f;
-
     bool init() override;
 
     CREATE_FUNC(BomberEnemy);

@@ -14,10 +14,11 @@ bool BombermanScene::init()
     const Vec2 origin = _director->getVisibleOrigin();
 
     initHud(origin, visibleSize);
+    _game = std::make_unique<BomberGame>();
     initGrid(origin);
     initEndLayer();
     initControls();
-    initGame();
+    initGameCallbacks();
 
     reset();
     scheduleUpdate();
@@ -28,6 +29,7 @@ bool BombermanScene::init()
 void BombermanScene::update(const float dt)
 {
     _game->update(dt, _controls->getDirection());
+    syncActors();
 }
 
 void BombermanScene::reset()
@@ -35,6 +37,7 @@ void BombermanScene::reset()
     _controls->clearDirection();
     _endLayer->hide();
     _game->reset();
+    syncActors();
 }
 
 void BombermanScene::initHud(const Vec2 &origin, const Size &size)
@@ -46,9 +49,10 @@ void BombermanScene::initHud(const Vec2 &origin, const Size &size)
 
 void BombermanScene::initGrid(const Vec2 &origin)
 {
-    _grid = BomberGrid::create();
+    _grid = BomberGrid::create(_game->getGrid());
     _grid->setPosition(origin + GRID_OFFSET);
     addChild(_grid);
+    _game->getGrid().onTileChanged = [this](const int col, const int row) { _grid->refresh(col, row); };
     initEnemies();
     initPlayer();
 }
@@ -67,7 +71,7 @@ void BombermanScene::initPlayer()
 
 void BombermanScene::initEnemies()
 {
-    for (int i = 0; i < 3; ++i) {
+    for (size_t i = 0; i < _game->getEnemies().size(); ++i) {
         auto enemy = BomberEnemy::create();
         _grid->addChild(enemy);
         _enemies.push_back(enemy);
@@ -86,11 +90,21 @@ void BombermanScene::initControls()
     addChild(_controls);
 }
 
-void BombermanScene::initGame()
+void BombermanScene::initGameCallbacks()
 {
-    _game = std::make_unique<BomberGame>(_grid, _player, _enemies);
     _game->onScoreChanged = [this](const int score) { _hud->setScore(score); };
     _game->onTimeChanged  = [this](const int time)  { _hud->setTime(time); };
     _game->onLivesChanged = [this](const int lives) { _hud->setLives(lives); };
     _game->onGameOver = [this] { _endLayer->show(_game->getScore()); };
+}
+
+void BombermanScene::syncActors() const
+{
+    _player->setPosition(_game->getPlayer().getPosition());
+
+    const auto& enemies = _game->getEnemies();
+    for (size_t i = 0; i < enemies.size(); ++i) {
+        _enemies[i]->setPosition(enemies[i].actor.getPosition());
+        _enemies[i]->setVisible(enemies[i].alive);
+    }
 }

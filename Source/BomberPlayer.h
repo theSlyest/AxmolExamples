@@ -1,23 +1,15 @@
 #pragma once
 
-#include "BomberActor.h"
+#include "2d/DrawNode.h"
 
-// The human-controlled actor: a blue square that can drop a bomb.
-class BomberPlayer : public BomberActor
+// How the player looks: a blue square. The game moves it by setting its position.
+class BomberPlayer : public ax::DrawNode
 {
 public:
-    static constexpr float SPEED = 200.0f;
-
     bool init() override;
 
     CREATE_FUNC(BomberPlayer);
 
-    void dropBomb() { _hasBomb = true; }
-    void clearBomb() { _hasBomb = false; }
-    bool hasBomb() const { return _hasBomb; }
-
 private:
     static const ax::Color4F COLOR;
-
-    bool _hasBomb = false;
 };

@@ -1,25 +1,27 @@
 #include "BomberGame.h"
 
 #include <algorithm>
+#include <cmath>
 
-#include "Directions.h"
 #include "RandomWalkBrain.h"
 
 USING_NS_AX;
 
-BomberGame::BomberGame(BomberGrid* grid, BomberPlayer* player, const std::vector<BomberEnemy*>& enemies,
-                       std::unique_ptr<EnemyBrain> brain)
-    : _grid(grid), _player(player), _enemies(enemies),
-      _brain(brain ? std::move(brain) : std::make_unique<RandomWalkBrain>())
+BomberGame::BomberGame(std::unique_ptr<EnemyBrain> brain)
+    : _enemies(ENEMY_COUNT), _brain(brain ? std::move(brain) : std::make_unique<RandomWalkBrain>())
 {
+    _grid.onBombReleased = [this](const int owner) {
+        if (owner == PLAYER_OWNER)
+            _playerHasBomb = false;
+    };
 }
 
 void BomberGame::reset()
 {
-    _grid->reset();
+    _grid.reset();
     respawnPlayer();
-    _player->setInvincible(false);
-    _player->clearBomb();
+    _player.setInvincible(false);
+    _playerHasBomb = false;
     resetEnemies();
     setLives(START_LIVES);
     setTime(START_TIME);
@@ -34,16 +36,16 @@ void BomberGame::update(const float dt, const Vec2& keyDirection)
         return;
 
     updateTime(dt);
-    _grid->update(dt);
+    _grid.update(dt);
     updatePlayer(dt, keyDirection);
-    for (const auto enemy : _enemies)
+    for (auto& enemy : _enemies)
         updateEnemy(dt, enemy);
 }
 
-void BomberGame::dropBomb() const
+void BomberGame::dropBomb()
 {
     if (!_over)
-        tryBomb(_player);
+        tryBomb();
 }
 
 void BomberGame::setScore(const int score)
@@ -76,36 +78,36 @@ void BomberGame::endGame()
 
 void BomberGame::updatePlayer(const float dt, const Vec2& keyDirection)
 {
-    _player->update(dt);
+    _player.update(dt);
 
-    if (const Vec2& direction = _player->getDirection(); direction != Vec2::ZERO) {
-        const Vec2 nextPos = _player->getPosition() + direction * _player->getSpeed() * dt;
-        if (_player->hasReachedDestination(nextPos)) {
-            const Vec2 dest = _player->getDestination();
+    if (const Vec2 direction = _player.getDirection(); direction != Vec2::ZERO) {
+        const Vec2 nextPos = _player.getPosition() + direction * _player.getSpeed() * dt;
+        if (_player.hasReachedDestination(nextPos)) {
+            const Vec2 dest = _player.getDestination();
             if (direction == keyDirection) {
-                const Vec2 nextDest = BomberGrid::neighborPosition(dest, direction);
-                if (_grid->isSafe(nextDest)) {
-                    _player->setPosition(nextPos);
-                    _player->setDestination(nextDest);
+                const Vec2 nextDest = GridModel::neighborPosition(dest, direction);
+                if (_grid.isSafe(nextDest)) {
+                    _player.setPosition(nextPos);
+                    _player.setDestination(nextDest);
                 }
                 else {
-                    _player->setPosition(dest);
-                    _player->setDirection(Vec2::ZERO);
+                    _player.setPosition(dest);
+                    _player.setDirection(Vec2::ZERO);
                 }
             }
             else {
-                _player->setPosition(dest);
-                const Vec2 nextDest = BomberGrid::neighborPosition(dest, keyDirection);
-                if (keyDirection == Vec2::ZERO || !_grid->isSafe(nextDest))
-                    _player->setDirection(Vec2::ZERO);
+                _player.setPosition(dest);
+                const Vec2 nextDest = GridModel::neighborPosition(dest, keyDirection);
+                if (keyDirection == Vec2::ZERO || !_grid.isSafe(nextDest))
+                    _player.setDirection(Vec2::ZERO);
                 else {
-                    _player->setDestination(nextDest);
-                    _player->setDirection(keyDirection);
+                    _player.setDestination(nextDest);
+                    _player.setDirection(keyDirection);
                 }
             }
         }
         else {
-            _player->setPosition(nextPos);
+            _player.setPosition(nextPos);
         }
     }
 
@@ -113,70 +115,71 @@ void BomberGame::updatePlayer(const float dt, const Vec2& keyDirection)
         loseLife();
 }
 
-void BomberGame::movePlayer(const Vec2 &direction) const
+void BomberGame::movePlayer(const Vec2& direction)
 {
-    const Vec2& oldDirection = _player->getDirection();
+    const Vec2 oldDirection = _player.getDirection();
     if (oldDirection == Vec2::ZERO) {
-        const Vec2 dest = BomberGrid::neighborPosition(_player->getPosition(), direction);
-        if (_grid->isSafe(dest)) {
-            _player->setDestination(dest);
-            _player->setDirection(direction);
+        const Vec2 dest = GridModel::neighborPosition(_player.getPosition(), direction);
+        if (_grid.isSafe(dest)) {
+            _player.setDestination(dest);
+            _player.setDirection(direction);
         }
     }
     else if (oldDirection + direction == Vec2::ZERO) {
-        _player->setDestination(BomberGrid::neighborPosition(_player->getDestination(), direction));
-        _player->setDirection(direction);
+        _player.setDestination(GridModel::neighborPosition(_player.getDestination(), direction));
+        _player.setDirection(direction);
     }
 }
 
-void BomberGame::updateEnemy(const float dt, BomberEnemy *enemy)
+void BomberGame::updateEnemy(const float dt, Enemy& enemy)
 {
-    if (!enemy->isVisible())
+    if (!enemy.alive)
         return;
 
-    const Vec2& direction = enemy->getDirection();
+    ActorModel& actor = enemy.actor;
+    const Vec2 direction = actor.getDirection();
 
     if (direction != Vec2::ZERO) {
-        const Vec2 nextPos = enemy->getPosition() + direction * enemy->getSpeed() * dt;
-        if (enemy->hasReachedDestination(nextPos)) {
-            const Vec2 dest = enemy->getDestination();
-            const Vec2 nextDirection = _brain->chooseDirection(*_grid, dest);
+        const Vec2 nextPos = actor.getPosition() + direction * actor.getSpeed() * dt;
+        if (actor.hasReachedDestination(nextPos)) {
+            const Vec2 dest = actor.getDestination();
+            const Vec2 nextDirection = _brain->chooseDirection(_grid, dest);
             if (direction == nextDirection) {
-                const Vec2 nextDest = BomberGrid::neighborPosition(dest, direction);
-                if (_grid->isSafe(nextDest)) {
-                    enemy->setPosition(nextPos);
-                    enemy->setDestination(nextDest);
+                const Vec2 nextDest = GridModel::neighborPosition(dest, direction);
+                if (_grid.isSafe(nextDest)) {
+                    actor.setPosition(nextPos);
+                    actor.setDestination(nextDest);
                 }
                 else {
-                    enemy->setPosition(dest);
-                    enemy->setDirection(Vec2::ZERO);
+                    actor.setPosition(dest);
+                    actor.setDirection(Vec2::ZERO);
                 }
             }
             else {
-                enemy->setPosition(dest);
-                const Vec2 nextDest = BomberGrid::neighborPosition(dest, nextDirection);
-                if (nextDirection == Vec2::ZERO || !_grid->isSafe(nextDest))
-                    enemy->setDirection(Vec2::ZERO);
+                actor.setPosition(dest);
+                const Vec2 nextDest = GridModel::neighborPosition(dest, nextDirection);
+                if (nextDirection == Vec2::ZERO || !_grid.isSafe(nextDest))
+                    actor.setDirection(Vec2::ZERO);
                 else {
-                    enemy->setDestination(nextDest);
-                    enemy->setDirection(nextDirection);
+                    actor.setDestination(nextDest);
+                    actor.setDirection(nextDirection);
                 }
             }
         }
         else
-            enemy->setPosition(nextPos);
+            actor.setPosition(nextPos);
     }
     else {
-        const Vec2 nextDirection = _brain->chooseDirection(*_grid, enemy->getPosition());
-        enemy->setDestination(BomberGrid::neighborPosition(enemy->getPosition(), nextDirection));
-        enemy->setDirection(nextDirection);
+        const Vec2 nextDirection = _brain->chooseDirection(_grid, actor.getPosition());
+        actor.setDestination(GridModel::neighborPosition(actor.getPosition(), nextDirection));
+        actor.setDirection(nextDirection);
     }
 
-    if (checkBurnt(enemy)) {
+    if (checkBurnt(actor)) {
         setScore(_score + REWARD);
-        enemy->setVisible(false);
+        enemy.alive = false;
 
-        if (std::ranges::none_of(_enemies, [](const BomberEnemy* e) { return e->isVisible(); }))
+        if (std::ranges::none_of(_enemies, [](const Enemy& e) { return e.alive; }))
             endGame();
     }
 }
@@ -194,65 +197,61 @@ void BomberGame::updateTime(const float dt)
     }
 }
 
-void BomberGame::tryBomb(BomberPlayer* player) const
+void BomberGame::tryBomb()
 {
-    if (player->hasBomb())
+    if (_playerHasBomb)
         return;
 
-    const auto tile = _grid->getTileAtCenter(player->getPosition());
-    if (tile->getState() != TileState::SAFE)
+    const auto [col, row] = GridModel::centerCoords(_player.getPosition());
+    if (_grid.getState(col, row) != TileState::SAFE)
         return;
 
-    if (tile->isOnFire())
-        _grid->detonate(tile);
+    if (_grid.isOnFire(col, row))
+        _grid.detonate(col, row);
     else {
-        const auto bomb = BomberBomb::create(player);
-        bomb->setPosition(tile->getPosition());
-        _grid->addChild(bomb);
-        tile->setBomb(bomb);
-        player->dropBomb();
+        _grid.setBomb(col, row, PLAYER_OWNER);
+        _playerHasBomb = true;
     }
 }
 
-bool BomberGame::checkBurnt(const BomberActor *actor) const
+bool BomberGame::checkBurnt(const ActorModel& actor) const
 {
-    if (actor->isInvincible())
+    if (actor.isInvincible())
         return false;
 
-    const auto tile1 = _grid->getTile(actor->getPosition() + Vec2(BomberActor::OFFSET, BomberActor::OFFSET));
-    if (tile1->isOnFire())
+    const Vec2 position = actor.getPosition();
+    const auto first = GridModel::positionToCoords(position + Vec2(ActorModel::OFFSET, ActorModel::OFFSET));
+    if (_grid.isOnFire(first.first, first.second))
         return true;
 
-    const auto tile2 = _grid->getTile(actor->getPosition() + Vec2(GridTile::SIZE - BomberActor::OFFSET, GridTile::SIZE - BomberActor::OFFSET));
-    if (tile2 != tile1 && tile2->isOnFire())
-        return true;
-
-    return false;
+    const auto second = GridModel::positionToCoords(
+        position + Vec2(GridModel::TILE_SIZE - ActorModel::OFFSET, GridModel::TILE_SIZE - ActorModel::OFFSET));
+    return second != first && _grid.isOnFire(second.first, second.second);
 }
 
 bool BomberGame::checkEnemyContact() const
 {
-    if (_player->isInvincible())
+    if (_player.isInvincible())
         return false;
 
-    const Vec2 pos = _player->getPosition();
-    for (const auto enemy : _enemies) {
-        if (!enemy->isVisible())
+    const Vec2 pos = _player.getPosition();
+    for (const auto& enemy : _enemies) {
+        if (!enemy.alive)
             continue;
 
-        const Vec2 delta = enemy->getPosition() - pos;
-        if (std::abs(delta.x) < BomberActor::SIZE && std::abs(delta.y) < BomberActor::SIZE)
+        const Vec2 delta = enemy.actor.getPosition() - pos;
+        if (std::abs(delta.x) < ActorModel::SIZE && std::abs(delta.y) < ActorModel::SIZE)
             return true;
     }
 
     return false;
 }
 
-void BomberGame::respawnPlayer() const
+void BomberGame::respawnPlayer()
 {
-    _player->setPosition(_grid->getTilePosition(1, 1));
-    _player->setDirection(Vec2::ZERO);
-    _player->setDestination(_player->getPosition());
+    _player.setPosition(GridModel::coordsToPosition({ 1, 1 }));
+    _player.setDirection(Vec2::ZERO);
+    _player.setDestination(_player.getPosition());
 }
 
 void BomberGame::loseLife()
@@ -262,17 +261,17 @@ void BomberGame::loseLife()
         endGame();
     else {
         respawnPlayer();
-        _player->setInvincible(true);
+        _player.setInvincible(true);
     }
 }
 
-void BomberGame::resetEnemies() const
+void BomberGame::resetEnemies()
 {
-    _enemies[0]->setPosition(_grid->getTilePosition(1, 9));
-    _enemies[1]->setPosition(_grid->getTilePosition(11, 1));
-    _enemies[2]->setPosition(_grid->getTilePosition(11, 9));
-    for (const auto& enemy : _enemies) {
-        enemy->setDirection(Vec2::ZERO);
-        enemy->setVisible(true);
+    static const GridCoords SPAWNS[ENEMY_COUNT] = { { 1, 9 }, { 11, 1 }, { 11, 9 } };
+
+    for (size_t i = 0; i < _enemies.size(); ++i) {
+        _enemies[i].actor.setPosition(GridModel::coordsToPosition(SPAWNS[i]));
+        _enemies[i].actor.setDirection(Vec2::ZERO);
+        _enemies[i].alive = true;
     }
 }

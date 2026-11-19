@@ -1,43 +1,27 @@
 #pragma once
 
 #include "2d/DrawNode.h"
-#include "BomberBomb.h"
 #include "GridModel.h"
 
-
+// How one tile of the map looks: a colored square with a border, and a red
+// overlay while it burns. It only draws what it is told to show.
 class GridTile : public ax::DrawNode
 {
 public:
-    static constexpr float SIZE = 48.0f;
+    static constexpr float SIZE = GridModel::TILE_SIZE;
 
-    virtual bool init(TileState state);
-    
-    static GridTile* create(TileState state);
+    bool init() override;
 
-    TileState getState() const { return _state; }
-    void setState(TileState state);
+    CREATE_FUNC(GridTile);
 
-    void setBomb(BomberBomb* bomb);
-    void releaseBomb();
-
-    void startFire();
-    void stopFire() const;
-    bool isOnFire() const { return _fire->isVisible(); }
-
-    bool updateState(float dt);
+    void show(TileState state, bool onFire);
 
 private:
-    static constexpr float FIRE_DELAY = 0.5f;
-    static constexpr float BOMB_DELAY = 2.0f;
     static const std::map<TileState, ax::Color4F> COLORS;
     static const ax::Color4F BORDER_COLOR;
     static const ax::Color4F FIRE_COLOR;
 
     TileState _state = TileState::SAFE;
-    float _remaining = 0;
-
+    bool _shown = false;
     ax::DrawNode* _fire = nullptr;
-    BomberBomb* _bomb   = nullptr;
-
-    void drawState(TileState state);
 };

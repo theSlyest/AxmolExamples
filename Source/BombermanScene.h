@@ -44,5 +44,8 @@ private:
     void initPlayer();
     void initEnemies();
     void initControls();
-    void initGame();
+    void initGameCallbacks();
+
+    // Copy the actors' positions from the game to their nodes.
+    void syncActors() const;
 };
