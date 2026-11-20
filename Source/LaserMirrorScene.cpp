@@ -66,7 +66,7 @@ void LaserMirrorScene::initBest(const ax::Size &visibleSize, const ax::Vec2 orig
 {
     _hudBest = HudValue::create("BEST", Color4F(0.95f, 0.77f, 0.06f, 1.0f));
     _hudBest->setAnchorPoint(Vec2::ANCHOR_TOP_RIGHT);
-    _hudBest->setPosition(origin.x + visibleSize.width - 64.0f, origin.y + visibleSize.height - HUD_OFFSET);
+    _hudBest->setPosition(origin.x + visibleSize.width - HUD_MARGIN, origin.y + visibleSize.height - HUD_TOP);
     addChild(_hudBest);
 }
 
@@ -74,7 +74,7 @@ void LaserMirrorScene::initMirrors(const ax::Size &visibleSize, const ax::Vec2 o
 {
     _hudMirrors = HudValue::create("MIRRORS", Color4F(0.21f, 0.6f, 0.86f, 1.0f));
     _hudMirrors->setAnchorPoint(Vec2::ANCHOR_TOP_LEFT);
-    _hudMirrors->setPosition(origin.x + 64.0f, origin.y + visibleSize.height - HUD_OFFSET);
+    _hudMirrors->setPosition(origin.x + HUD_MARGIN, origin.y + visibleSize.height - HUD_TOP);
     addChild(_hudMirrors);
 }
 
@@ -82,7 +82,7 @@ void LaserMirrorScene::initRemaining(const ax::Size &visibleSize, const ax::Vec2
 {
     _hudRemaining = HudValue::create("REMAINING", Color4F(0.36f, 0.67f, 0.31f, 1.0f));
     _hudRemaining->setAnchorPoint(Vec2::ANCHOR_MIDDLE_TOP);
-    _hudRemaining->setPosition(origin.x + visibleSize.width / 2.0f, origin.y + visibleSize.height - HUD_OFFSET);
+    _hudRemaining->setPosition(origin.x + visibleSize.width / 2.0f, origin.y + visibleSize.height - HUD_TOP);
     addChild(_hudRemaining);
 }
 

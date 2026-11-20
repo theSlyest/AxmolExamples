@@ -18,7 +18,7 @@ public:
     void reset();
 
 private:
-    const std::vector<std::vector<CellState>> INITIAL_GRID {
+    static inline const std::vector<std::vector<CellState>> INITIAL_GRID {
         { CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY },
         { CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::WALL, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY },
         { CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::WALL, CellState::EMPTY, CellState::WALL, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY },
@@ -29,11 +29,12 @@ private:
         { CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY }
     };
 
-    const float HUD_OFFSET = 32.0f;
-    const int INITIAL_MIRRORS = 5;
-    const LaserSide EMITTER_SIDE = LaserSide::LEFT;
-    const int EMITTER_POS = 6;
-    const char* BEST_KEY = "BEST";
+    static constexpr float HUD_TOP = 32.0f;     // space above the HUD boxes
+    static constexpr float HUD_MARGIN = 64.0f;  // space between the side boxes and the screen edge
+    static constexpr int INITIAL_MIRRORS = 5;
+    static constexpr LaserSide EMITTER_SIDE = LaserSide::LEFT;
+    static constexpr int EMITTER_POS = 6;
+    static constexpr const char* BEST_KEY = "BEST";
 
     LaserGrid* _grid = nullptr;
 
