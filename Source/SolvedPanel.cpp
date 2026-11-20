@@ -1,6 +1,7 @@
 #include "SolvedPanel.h"
 
 #include "2d/Menu.h"
+#include "fmt/format.h"
 
 USING_NS_AX;
 
@@ -44,10 +45,11 @@ bool SolvedPanel::init()
     return true;
 }
 
-void SolvedPanel::setValues(const std::string &mirrors, const std::string &best) const
+void SolvedPanel::show(const int mirrors, const int best, const bool newRecord)
 {
-    _mirrorLbl->setString("Mirrors used: " + mirrors);
-    _bestLbl->setString("Best: " + best);
+    _mirrorLbl->setString(fmt::format("Mirrors used: {}", mirrors));
+    _bestLbl->setString(fmt::format("Best: {}{}", best, newRecord ? " (New record)" : ""));
+    setVisible(true);
 }
 
 void SolvedPanel::menuItemCallback(Object *sender) const

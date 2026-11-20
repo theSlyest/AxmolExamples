@@ -7,9 +7,10 @@
 #include "2d/Scene.h"
 #include "EventListenerTouch.h"
 
-#include "HudValue.h"
+#include "BestScore.h"
 #include "LaserBoard.h"
 #include "LaserGrid.h"
+#include "LaserHud.h"
 #include "SolvedPanel.h"
 
 class LaserMirrorScene : public ax::Scene
@@ -35,41 +36,28 @@ private:
         "............",
     };
 
-    static constexpr float HUD_TOP = 32.0f;     // space above the HUD boxes
-    static constexpr float HUD_MARGIN = 64.0f;  // space between the side boxes and the screen edge
     static constexpr int INITIAL_MIRRORS = 5;
     static constexpr LaserSide EMITTER_SIDE = LaserSide::LEFT;
     static constexpr int EMITTER_POS = 6;
-    static constexpr const char* BEST_KEY = "BEST";
 
     std::unique_ptr<LaserBoard> _board;
+    BestScore _best{ INITIAL_MIRRORS };
+
     LaserGrid* _grid = nullptr;
+    LaserHud* _hud = nullptr;
+    SolvedPanel* _panel = nullptr;
 
     bool _isSolved = false;
 
-    int _best = 0;
-    int _mirrorCount = 0;
-
-    HudValue* _hudBest = nullptr;
-    HudValue* _hudMirrors = nullptr;
-    HudValue* _hudRemaining = nullptr;
-    SolvedPanel* _panel = nullptr;
-
     void initGrid(const ax::Size& visibleSize, ax::Vec2 origin);
     void initPanel(const ax::Size& visibleSize, ax::Vec2 origin);
-    void initBest(const ax::Size& visibleSize, ax::Vec2 origin);
-    void initMirrors(const ax::Size& visibleSize, ax::Vec2 origin);
-    void initRemaining(const ax::Size& visibleSize, ax::Vec2 origin);
+    void initHud(const ax::Size& visibleSize, ax::Vec2 origin);
     void initTouchListener();
 
     bool onTouchBegan(ax::Touch* touch, ax::Event* event);
 
-    void setBest(int value);
-    void setMirrors(int value);
-    void setRemaining(int value) const;
+    // Show the mirror counts from the board.
+    void updateHud() const;
 
     void showPanel();
-
-    void loadBestValue();
-    void saveBestValue() const;
 };

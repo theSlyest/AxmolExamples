@@ -13,7 +13,10 @@ public:
     // implement the "static create()" method manually
     CREATE_FUNC(SolvedPanel);
 
-    void setValues(const std::string& mirrors, const std::string& best) const;
+    // Show the result: the mirrors used, the best result, and whether this is a new record.
+    void show(int mirrors, int best, bool newRecord);
+    void hide() { setVisible(false); }
+
     void setButtonCallback(const ax::ccMenuCallback &callback) { _btnCallback = callback; }
 
 private:

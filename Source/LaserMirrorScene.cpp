@@ -2,7 +2,6 @@
 
 #include "Director.h"
 #include "EventDispatcher.h"
-#include "UserDefault.h"
 
 USING_NS_AX;
 
@@ -21,12 +20,8 @@ bool LaserMirrorScene::init()
 
     initGrid(visibleSize, origin);
     initPanel(visibleSize, origin);
-    initBest(visibleSize, origin);
-    initMirrors(visibleSize, origin);
-    initRemaining(visibleSize, origin);
+    initHud(visibleSize, origin);
     initTouchListener();
-
-    loadBestValue();
 
     reset();
 
@@ -38,10 +33,10 @@ void LaserMirrorScene::reset()
     _board->reset();
     _grid->refresh();
 
-    setMirrors(0);
-    setRemaining(INITIAL_MIRRORS);
+    updateHud();
+    _hud->setBest(_best.get());
 
-    _panel->setVisible(false);
+    _panel->hide();
     _isSolved = false;
 }
 
@@ -56,35 +51,18 @@ void LaserMirrorScene::initGrid(const Size &visibleSize, const Vec2 origin)
 void LaserMirrorScene::initPanel(const ax::Size &visibleSize, const ax::Vec2 origin)
 {
     _panel = SolvedPanel::create();
-    _panel->setButtonCallback([this](Object* sender) { reset(); });
+    _panel->setButtonCallback([this](Object*) { reset(); });
     _panel->setAnchorPoint(Vec2::ANCHOR_MIDDLE);
     _panel->setPosition(origin.x + visibleSize.width / 2.0f, origin.y + visibleSize.height / 2.0f);
-    _panel->setVisible(false);
+    _panel->hide();
     addChild(_panel);
 }
 
-void LaserMirrorScene::initBest(const ax::Size &visibleSize, const ax::Vec2 origin)
+void LaserMirrorScene::initHud(const Size &visibleSize, const Vec2 origin)
 {
-    _hudBest = HudValue::create("BEST", Color4F(0.95f, 0.77f, 0.06f, 1.0f));
-    _hudBest->setAnchorPoint(Vec2::ANCHOR_TOP_RIGHT);
-    _hudBest->setPosition(origin.x + visibleSize.width - HUD_MARGIN, origin.y + visibleSize.height - HUD_TOP);
-    addChild(_hudBest);
-}
-
-void LaserMirrorScene::initMirrors(const ax::Size &visibleSize, const ax::Vec2 origin)
-{
-    _hudMirrors = HudValue::create("MIRRORS", Color4F(0.21f, 0.6f, 0.86f, 1.0f));
-    _hudMirrors->setAnchorPoint(Vec2::ANCHOR_TOP_LEFT);
-    _hudMirrors->setPosition(origin.x + HUD_MARGIN, origin.y + visibleSize.height - HUD_TOP);
-    addChild(_hudMirrors);
-}
-
-void LaserMirrorScene::initRemaining(const ax::Size &visibleSize, const ax::Vec2 origin)
-{
-    _hudRemaining = HudValue::create("REMAINING", Color4F(0.36f, 0.67f, 0.31f, 1.0f));
-    _hudRemaining->setAnchorPoint(Vec2::ANCHOR_MIDDLE_TOP);
-    _hudRemaining->setPosition(origin.x + visibleSize.width / 2.0f, origin.y + visibleSize.height - HUD_TOP);
-    addChild(_hudRemaining);
+    _hud = LaserHud::create(visibleSize);
+    _hud->setPosition(origin);
+    addChild(_hud);
 }
 
 void LaserMirrorScene::initTouchListener()
@@ -107,9 +85,7 @@ bool LaserMirrorScene::onTouchBegan(Touch *touch, Event *event)
     _board->cycleMirror(cell->first, cell->second);
     _grid->refresh();
 
-    const int mirrorCount = _board->getMirrorCount();
-    setMirrors(mirrorCount);
-    setRemaining(_board->getRemainingMirrors());
+    updateHud();
 
     if (_board->isSolved()) {
         _isSolved = true;
@@ -119,46 +95,17 @@ bool LaserMirrorScene::onTouchBegan(Touch *touch, Event *event)
     return true;
 }
 
-void LaserMirrorScene::setBest(const int value)
+void LaserMirrorScene::updateHud() const
 {
-    _best = value;
-    _hudBest->setValue(std::to_string(value)); 
-}
-
-void LaserMirrorScene::setMirrors(const int value)
-{
-    _mirrorCount = value; 
-    _hudMirrors->setValue(std::to_string(value)); 
-}
-
-void LaserMirrorScene::setRemaining(const int value) const
-{ 
-    _hudRemaining->setValue(std::to_string(value)); 
+    _hud->setMirrors(_board->getMirrorCount());
+    _hud->setRemaining(_board->getRemainingMirrors());
 }
 
 void LaserMirrorScene::showPanel()
 {
-    _isSolved = true;
-    std::string bestResult;
-    if (_mirrorCount < _best) {
-        setBest(_mirrorCount);
-        saveBestValue();
-        bestResult = std::to_string(_best) + " (New record)";
-    }
-    else {
-        bestResult = std::to_string(_best);
-    }
-    _panel->setValues(std::to_string(_mirrorCount), bestResult);
-    _panel->setVisible(true);
-}
+    const bool newRecord = _best.submit(_board->getMirrorCount());
+    if (newRecord)
+        _hud->setBest(_best.get());
 
-void LaserMirrorScene::loadBestValue()
-{
-    setBest(UserDefault::getInstance()->getIntegerForKey(BEST_KEY, INITIAL_MIRRORS));
-}
-
-void LaserMirrorScene::saveBestValue() const
-{
-    UserDefault::getInstance()->setIntegerForKey(BEST_KEY, _best);
-    UserDefault::getInstance()->flush();
+    _panel->show(_board->getMirrorCount(), _best.get(), newRecord);
 }
