@@ -157,7 +157,7 @@ void Water::updateMesh()
                     distanceFromWaveFront < WAVE_WINDOW && distance > 0.0f) { // Only deform within ripple boundary
                     const float waveValue = cosf((distance - ripple.radius) * WAVE_FREQUENCY); // Frequency modifier
                     const float envelope = expf(-powf(distanceFromWaveFront / WAVE_WIDTH, 2.0f)); // Attenuation factor to narrow the ripple width
-                    z = waveValue * ripple.amplitude * envelope;
+                    z += waveValue * ripple.amplitude * envelope;
                 }
             }
 
