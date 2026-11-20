@@ -1,7 +1,9 @@
 #include "SignalScreen.h"
 
+#include <cstdint>
+#include <vector>
+
 #include "2d/ClippingNode.h"
-#include "glfw/src/internal.h"
 #include "renderer/Shaders.h"
 #include "renderer/backend/ProgramManager.h"
 
@@ -119,8 +121,7 @@ Texture2D *SignalScreen::createPicture() const
     // Columns
     const int width = static_cast<int>(_size.width);
     const int height = static_cast<int>(_size.height);
-    const int bufferSize = width * height * 4;
-    const auto buffer = static_cast<GLubyte *>(malloc(bufferSize));
+    std::vector<uint8_t> buffer(static_cast<size_t>(width) * height * 4);
 
     const int midX = width / 2;
     const int midY = height / 2;
@@ -155,8 +156,7 @@ Texture2D *SignalScreen::createPicture() const
     }
 
     const auto texture = new Texture2D();
-    texture->initWithData(buffer, bufferSize, backend::PixelFormat::RGBA8, width, height);
-    free(buffer);
+    texture->initWithData(buffer.data(), buffer.size(), backend::PixelFormat::RGBA8, width, height);
 
     const auto texParams = Texture2D::TexParams(
         backend::SamplerFilter::LINEAR, backend::SamplerFilter::LINEAR,
