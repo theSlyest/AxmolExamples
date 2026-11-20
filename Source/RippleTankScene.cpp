@@ -1,5 +1,8 @@
 #include "RippleTankScene.h"
 
+#include "Director.h"
+#include "EventDispatcher.h"
+
 USING_NS_AX;
 
 const Color4B RippleTankScene::TextColor(42, 169, 192, 255); // #2aa9c0

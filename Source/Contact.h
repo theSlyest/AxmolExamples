@@ -1,7 +1,6 @@
-#ifndef __RIPPLE_CONTACT_H__
-#define __RIPPLE_CONTACT_H__
+#pragma once
 
-#include "axmol.h"
+#include "2d/DrawNode.h"
 
 constexpr float CON_RADIUS = 7.0f;
 constexpr float CON_SPEED = 16.0f;
@@ -21,5 +20,3 @@ public:
 private:
     ax::Vec2 _direction;
 };
-
-#endif // __RIPPLE_CONTACT_H__

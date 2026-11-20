@@ -1,41 +1,47 @@
-#ifndef __HELLOWORLD_SCENE_H__
-#define __HELLOWORLD_SCENE_H__
+#pragma once
 
-#include "axmol.h"
+#include <vector>
+
+#include "2d/Label.h"
+#include "2d/Layer.h"
+#include "2d/Scene.h"
+#include "EventListenerKeyboard.h"
+#include "EventListenerTouch.h"
+
 #include "Contact.h"
 #include "Water.h"
 
 class RippleTankScene : public ax::Scene
 {
 public:
-    virtual bool init() override;
+    bool init() override;
     
     // implement the "static create()" method manually
     CREATE_FUNC(RippleTankScene);
 
-    virtual void update(float dt) override;
+    void update(float dt) override;
 
 private:
     static const ax::Color4B TextColor;
 
-    Water* _water;
+    Water* _water = nullptr;
     std::vector<Contact*> _contacts;
 
-    int _score;
-    int _timer;
-    bool _isStatePlay;
+    int _score = 0;
+    int _timer = 0;
+    bool _isStatePlay = false;
 
     ax::Size _waterSize;
 
-    ax::Label* _scoreLabel;
-    ax::Label* _endScoreLabel;
-    ax::Label* _timerLabel;
+    ax::Label* _scoreLabel = nullptr;
+    ax::Label* _endScoreLabel = nullptr;
+    ax::Label* _timerLabel = nullptr;
 
-    ax::LayerColor* _startLayer;
-    ax::LayerColor* _endLayer;
+    ax::LayerColor* _startLayer = nullptr;
+    ax::LayerColor* _endLayer = nullptr;
 
-    ax::EventListenerTouchOneByOne* _touchListener;
-    ax::EventListenerKeyboard* _keyboardListener;
+    ax::EventListenerTouchOneByOne* _touchListener = nullptr;
+    ax::EventListenerKeyboard* _keyboardListener = nullptr;
 
     void initScoreLabel(const ax::Vec2& origin, const ax::Size& visibleSize);
     void initTimerLabel(const ax::Vec2& origin, const ax::Size& visibleSize);
@@ -66,4 +72,3 @@ private:
     void updateTimer();
 };
 
-#endif // __HELLOWORLD_SCENE_H__

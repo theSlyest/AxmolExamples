@@ -1,7 +1,8 @@
-#ifndef __RIPPLE_WATER_H__
-#define __RIPPLE_WATER_H__
+#pragma once
 
-#include "axmol.h"
+#include <deque>
+
+#include "2d/Sprite.h"
 
 constexpr int GRID_LINES = 35;
 constexpr int CELL_SIZE = 28;
@@ -48,4 +49,3 @@ private:
 
 };
 
-#endif // __RIPPLE_WATER_H__
