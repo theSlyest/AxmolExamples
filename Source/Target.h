@@ -13,7 +13,6 @@ public:
     // implement the "static create()" method manually
     CREATE_FUNC(Target);
 
-    void setLit(const bool isLit) const { _lightNode->setVisible(isLit); }
     bool isLit() const override { return _lightNode->isVisible(); }
 
     void onTouch() override {}

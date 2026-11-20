@@ -10,14 +10,10 @@
 class LaserMirrorScene : public ax::Scene
 {
 public:
-    static ax::Scene* createScene();
-
     bool init() override;
     
     // implement the "static create()" method manually
     CREATE_FUNC(LaserMirrorScene);
-
-    void onExit() override;
 
     void reset();
 
@@ -40,8 +36,6 @@ private:
     const char* BEST_KEY = "BEST";
 
     LaserGrid* _grid = nullptr;
-
-    ax::EventListenerTouchOneByOne* _touchListener = nullptr;
 
     bool _isSolved = false;
 

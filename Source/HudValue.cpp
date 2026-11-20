@@ -11,7 +11,7 @@ bool HudValue::init(const std::string& name, const Color4F& color)
         return false;
     }
 
-    _name = name;
+    _title = name;
 
     _label = Label::createWithTTF(name + ": 0", "fonts/arial.ttf", 24.0f);    
     Size size = _label->getContentSize() + Size(56.0f, 32.0f);
@@ -44,5 +44,5 @@ HudValue *HudValue::create(const std::string& name, const Color4F& color)
 
 void HudValue::setValue(const std::string &value) const
 {
-    _label->setString(_name + ": " + value);
+    _label->setString(_title + ": " + value);
 }

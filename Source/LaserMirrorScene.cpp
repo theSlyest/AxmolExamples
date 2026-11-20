@@ -1,11 +1,10 @@
 #include "LaserMirrorScene.h"
 
-USING_NS_AX;
+#include "Director.h"
+#include "EventDispatcher.h"
+#include "UserDefault.h"
 
-Scene* LaserMirrorScene::createScene()
-{
-    return LaserMirrorScene::create();
-}
+USING_NS_AX;
 
 // on "init" you need to initialize your instance
 bool LaserMirrorScene::init()
@@ -30,12 +29,6 @@ bool LaserMirrorScene::init()
     reset();
 
     return true;
-}
-
-void LaserMirrorScene::onExit()
-{
-    Scene::onExit();
-    _eventDispatcher->removeEventListener(_touchListener);
 }
 
 void LaserMirrorScene::reset()
@@ -95,9 +88,10 @@ void LaserMirrorScene::initRemaining(const ax::Size &visibleSize, const ax::Vec2
 
 void LaserMirrorScene::initTouchListener()
 {
-    _touchListener = EventListenerTouchOneByOne::create();
-    _touchListener->onTouchBegan = [this](Touch* t, Event* e) -> bool { return onTouchBegan(t, e); };
-    _eventDispatcher->addEventListenerWithSceneGraphPriority(_touchListener, this);
+    // The listener is attached to the scene, so it goes away with it.
+    const auto listener = EventListenerTouchOneByOne::create();
+    listener->onTouchBegan = [this](Touch* t, Event* e) -> bool { return onTouchBegan(t, e); };
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
 }
 
 bool LaserMirrorScene::onTouchBegan(Touch *touch, Event *event)

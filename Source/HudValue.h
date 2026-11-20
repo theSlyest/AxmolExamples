@@ -18,5 +18,6 @@ private:
     static constexpr float BORDER = 4.0f;
     static const ax::Color4F BG_COLOR;
 
+    std::string _title;
     ax::Label* _label = nullptr;
 };
