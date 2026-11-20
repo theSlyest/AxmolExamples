@@ -218,7 +218,7 @@ Vec2 RippleTankScene::randomWaterLocation()
 
 bool RippleTankScene::isWithinReach(Vec2 posA, Vec2 posB)
 {
-    return posA.getDistance(posB) <= RIPPLE_REACH;
+    return posA.getDistance(posB) <= Water::RIPPLE_REACH;
 }
 
 void RippleTankScene::respawnContact(Contact* contact, ax::Vec2 touchLocation)
@@ -249,14 +249,14 @@ void RippleTankScene::updateContact(float dt, Contact* contact)
 
     Vec2 dir = contact->getDirection();
 
-    // Water vertical limits
-    if (pos.x - CON_RADIUS <= 0.0f || pos.x + CON_RADIUS >= _waterSize.width) {
+    // Left and right edges of the water
+    if (pos.x - Contact::RADIUS <= 0.0f || pos.x + Contact::RADIUS >= _waterSize.width) {
         dir.x *= -1;
         contact->setDirection(dir);
     }
 
-    // Water horizontal limits
-    if (pos.y - CON_RADIUS <= 0.0f || pos.y + CON_RADIUS >= _waterSize.height) {
+    // Bottom and top edges of the water
+    if (pos.y - Contact::RADIUS <= 0.0f || pos.y + Contact::RADIUS >= _waterSize.height) {
         dir.y *= -1;
         contact->setDirection(dir);
     }

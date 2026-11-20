@@ -2,13 +2,13 @@
 
 #include "2d/DrawNode.h"
 
-constexpr float CON_RADIUS = 7.0f;
-constexpr float CON_SPEED = 16.0f;
-
 class Contact : public ax::DrawNode
 {
 public:
-    virtual bool init() override;
+    static constexpr float RADIUS = 7.0f;
+    static constexpr float SPEED = 16.0f;  // pixels per second
+
+    bool init() override;
 
     CREATE_FUNC(Contact);
 
