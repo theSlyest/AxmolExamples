@@ -1,5 +1,9 @@
 #include "Water.h"
 
+#include <cmath>
+#include <cstdint>
+#include <vector>
+
 USING_NS_AX;
 
 const Color4B Water::LineColor(42, 169, 192, 255); // #2aa9c0
@@ -24,8 +28,7 @@ Texture2D* Water::createSurface()
 {
     const Color4B bgColor(0, 0, 0, 0); // Transparent
 
-    constexpr int bufferSize = GRID_SIZE * GRID_SIZE * 4;
-    auto* buffer = static_cast<GLubyte*>(malloc(bufferSize));
+    std::vector<uint8_t> buffer(static_cast<size_t>(GRID_SIZE) * GRID_SIZE * 4);
 
     for (int y = 0; y < GRID_SIZE; ++y) {
         for (int x = 0; x < GRID_SIZE; ++x) {
@@ -47,9 +50,10 @@ Texture2D* Water::createSurface()
     }
 
     const auto texture = new Texture2D();
-    texture->initWithData(buffer, bufferSize, backend::PixelFormat::RGBA8, GRID_SIZE,
-        static_cast<float>(GRID_SIZE));
-    free(buffer);
+    if (!texture->initWithData(buffer.data(), static_cast<ssize_t>(buffer.size()), backend::PixelFormat::RGBA8, GRID_SIZE, GRID_SIZE)) {
+        delete texture;
+        return nullptr;
+    }
 
     const auto texParams = Texture2D::TexParams(
         backend::SamplerFilter::LINEAR, backend::SamplerFilter::LINEAR, 
