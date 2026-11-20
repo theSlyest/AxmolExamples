@@ -21,7 +21,9 @@ public:
     
     void reset(const std::vector<std::vector<CellState>>& states);
 
-    bool refreshBeam() const;
+    // Trace the beam again from the emitter and light the cells it crosses.
+    // Returns true, and remembers it, when the beam reaches the target.
+    bool refreshBeam();
 
     bool onTouch(ax::Touch* touch, bool maxReached);
 
@@ -42,7 +44,7 @@ protected:
     int _emitterCol = 0;
 
     int _mirrorCount = 0;
-    int _isTargetReached = 0;
+    bool _isTargetReached = false;
 
     void initCells();
     void initEmitter();

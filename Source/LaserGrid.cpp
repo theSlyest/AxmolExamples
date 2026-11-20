@@ -130,6 +130,7 @@ void LaserGrid::reset(const std::vector<std::vector<CellState>> &states)
     }
 
     _mirrorCount = 0;
+    _isTargetReached = false;
 }
 
 void LaserGrid::clearBeam() const
@@ -142,9 +143,10 @@ void LaserGrid::clearBeam() const
     }
 }
 
-bool LaserGrid::refreshBeam() const
+bool LaserGrid::refreshBeam()
 {
     clearBeam();
+    _isTargetReached = false;
 
     int row;
     int col;
@@ -166,11 +168,10 @@ bool LaserGrid::refreshBeam() const
         from = invertSide(to);
     } while (row > -1 && row < ROWS && col > -1 && col < COLS && _cells[row][col]->laserOn(from, to));
 
-    if (row > -1 && row < ROWS && col > -1 && col < COLS) {
-        return _cells[row][col]->getState() == CellState::TARGET;
-    }
+    if (row > -1 && row < ROWS && col > -1 && col < COLS)
+        _isTargetReached = _cells[row][col]->getState() == CellState::TARGET;
 
-    return false;
+    return _isTargetReached;
 }
 
 bool LaserGrid::onTouch(Touch *touch, bool maxReached)
@@ -199,7 +200,7 @@ bool LaserGrid::onTouch(Touch *touch, bool maxReached)
                     }
 
                     if (cell->isLit())
-                        _isTargetReached = refreshBeam();
+                        refreshBeam();
                 }
                 return true;
             }
