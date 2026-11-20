@@ -2,6 +2,7 @@
 
 #include "Director.h"
 #include "EventDispatcher.h"
+#include "fmt/format.h"
 
 USING_NS_AX;
 
@@ -123,7 +124,7 @@ void SignalLockScene::setScore(const int score)
 void SignalLockScene::setTime(const int time)
 {
     _time = time;
-    _timeLabel->setString(StringUtils::format("Time: %2d", time));
+    _timeLabel->setString(fmt::format("Time: {:2d}", time));
 }
 
 void SignalLockScene::reset()

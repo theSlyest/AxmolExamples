@@ -1,5 +1,7 @@
 #include "SignalDial.h"
 
+#include "fmt/format.h"
+
 USING_NS_AX;
 
 bool SignalDial::init()
@@ -83,7 +85,7 @@ float SignalDial::tuneTo(const float x) const
 {
     _arrow->setPositionX(x);
     const float value = x / DIAL_WIDTH;
-    _label->setString(StringUtils::format("TUNE %03d", static_cast<int>(value * 100)));
+    _label->setString(fmt::format("TUNE {:03d}", static_cast<int>(value * 100)));
     return value;
 }
 
