@@ -1,6 +1,5 @@
 #include "SignalScreen.h"
 
-#include <cstdint>
 #include <vector>
 
 #include "2d/ClippingNode.h"
@@ -126,7 +125,7 @@ Texture2D *SignalScreen::createPicture() const
 
     const int midX = width / 2;
     const int midY = height / 2;
-    const int ringRadiusIn = 0.75f * midY - 8;
+    const int ringRadiusIn = midY * 0.75f - 8;
     const int ringRadiusOut = ringRadiusIn + 16;
     const int circleRadius = height / 6;
     const int colWidth = width / 6;
@@ -157,7 +156,7 @@ Texture2D *SignalScreen::createPicture() const
     }
 
     const auto texture = new Texture2D();
-    texture->initWithData(buffer.data(), buffer.size(), backend::PixelFormat::RGBA8, width, height);
+    texture->initWithData(buffer.data(), static_cast<ssize_t>(buffer.size()), backend::PixelFormat::RGBA8, width, height);
 
     const auto texParams = Texture2D::TexParams(
         backend::SamplerFilter::LINEAR, backend::SamplerFilter::LINEAR,

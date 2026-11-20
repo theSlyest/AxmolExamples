@@ -16,7 +16,7 @@ bool SignalDial::init()
     constexpr float spacing = DIAL_WIDTH / 40;
     int value = 0;
     for (int i = 0; i < 41; ++i) {
-        const float x = i * spacing;
+        const float x = static_cast<float>(i) * spacing;
         if (i % 4 == 0) {
             drawSolidRect(Vec2(x - LARGE_WIDTH, DIAL_HEIGHT - RULER_Y_OFFSET), 
                           Vec2(x + LARGE_WIDTH, DIAL_HEIGHT - RULER_HEIGHT - RULER_Y_OFFSET), 
@@ -57,11 +57,11 @@ void SignalDial::initArrow()
     _label->setPosition(ARROW_WIDTH / 2.0f, ARROW_RECT_HEIGHT / 2.0f);
     _arrow->addChild(_label);
 
-    const float height = DIAL_HEIGHT - ARROW_RECT_HEIGHT;
-    const float width = ARROW_THICKNESS * 2.0f;
-    const float offset = ARROW_THICKNESS * 0.5f;
-    const float length = height * 0.8f;
-    const Vec2 points[7] {
+    constexpr float height = DIAL_HEIGHT - ARROW_RECT_HEIGHT;
+    constexpr float width = ARROW_THICKNESS * 2.0f;
+    constexpr float offset = ARROW_THICKNESS * 0.5f;
+    constexpr float length = height * 0.8f;
+    constexpr Vec2 points[7] {
         Vec2(offset, length),
         Vec2(offset, 0.0f),
         Vec2(width - offset, 0.0f),

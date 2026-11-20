@@ -5,11 +5,11 @@
 #include <random>
 
 namespace {
-float defaultRandom()
-{
-    static std::mt19937 engine{ std::random_device{}() };
-    return std::uniform_real_distribution<float>(0.0f, 1.0f)(engine);
-}
+    float defaultRandom()
+    {
+        static std::mt19937 engine{ std::random_device{}() };
+        return std::uniform_real_distribution<float>(0.0f, 1.0f)(engine);
+    }
 }
 
 SignalLockGame::SignalLockGame(Random random) : _random(random ? std::move(random) : Random(defaultRandom))
