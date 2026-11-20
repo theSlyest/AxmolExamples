@@ -3,13 +3,14 @@
 #include <memory>
 #include <vector>
 
-#include "2d/Label.h"
-#include "2d/Layer.h"
 #include "2d/Scene.h"
 #include "EventListenerKeyboard.h"
 #include "EventListenerTouch.h"
 
 #include "Contact.h"
+#include "RippleHud.h"
+#include "RoundOverLayer.h"
+#include "StartPrompt.h"
 #include "TankGame.h"
 #include "Water.h"
 
@@ -24,29 +25,22 @@ public:
     void update(float dt) override;
 
 private:
-    static const ax::Color4B TextColor;
-
     std::unique_ptr<TankGame> _game;
 
+    RippleHud* _hud = nullptr;
     Water* _water = nullptr;
     std::vector<Contact*> _contacts;
-
-    ax::Label* _scoreLabel = nullptr;
-    ax::Label* _endScoreLabel = nullptr;
-    ax::Label* _timerLabel = nullptr;
-
-    ax::LayerColor* _startLayer = nullptr;
-    ax::LayerColor* _endLayer = nullptr;
+    StartPrompt* _startPrompt = nullptr;
+    RoundOverLayer* _roundOver = nullptr;
 
     ax::EventListenerTouchOneByOne* _touchListener = nullptr;
     ax::EventListenerKeyboard* _keyboardListener = nullptr;
 
-    void initScoreLabel(const ax::Vec2& origin, const ax::Size& visibleSize);
-    void initTimerLabel(const ax::Vec2& origin, const ax::Size& visibleSize);
+    void initHud(const ax::Vec2& origin, const ax::Size& visibleSize);
     void initWater(const ax::Size& visibleSize);
     void initContacts();
-    void initStartLayer(const ax::Size& visibleSize);
-    void initEndLayer(const ax::Size& visibleSize);
+    void initStartPrompt(const ax::Size& visibleSize);
+    void initRoundOver();
     void initGame();
 
     void initTouchListener();

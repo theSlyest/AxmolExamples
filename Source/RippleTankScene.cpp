@@ -2,11 +2,9 @@
 
 #include "Director.h"
 #include "EventDispatcher.h"
-#include "fmt/format.h"
+#include "Theme.h"
 
 USING_NS_AX;
-
-const Color4B RippleTankScene::TextColor(42, 169, 192, 255); // #2aa9c0
 
 // on "init" you need to initialize your instance
 bool RippleTankScene::init()
@@ -19,15 +17,14 @@ bool RippleTankScene::init()
     const auto& visibleSize = _director->getVisibleSize();
     const Vec2& origin = _director->getVisibleOrigin();
 
-    const auto backgroundLayer = LayerColor::create(Color4B(10, 20, 34, 255)); // #0a1422
+    const auto backgroundLayer = LayerColor::create(Theme::BACKGROUND);
     addChild(backgroundLayer);
 
-    initScoreLabel(origin, visibleSize);
-    initTimerLabel(origin, visibleSize);
+    initHud(origin, visibleSize);
     initWater(visibleSize);
     initContacts();
-    initStartLayer(visibleSize);
-    initEndLayer(visibleSize);
+    initStartPrompt(visibleSize);
+    initRoundOver();
 
     initTouchListener();
     initKeyboardListener();
@@ -39,22 +36,11 @@ bool RippleTankScene::init()
     return true;
 }
 
-void RippleTankScene::initScoreLabel(const Vec2& origin, const Size& visibleSize)
+void RippleTankScene::initHud(const Vec2& origin, const Size& visibleSize)
 {
-    _scoreLabel = Label::createWithTTF("Score: 0", "fonts/arial.ttf", 24.0f);
-    _scoreLabel->setTextColor(TextColor);
-    _scoreLabel->setAnchorPoint(Vec2::ANCHOR_TOP_LEFT);
-    _scoreLabel->setPosition(origin.x + 16.0f, origin.y + visibleSize.height - 16.0f);
-    addChild(_scoreLabel);
-}
-
-void RippleTankScene::initTimerLabel(const Vec2& origin, const Size& visibleSize)
-{
-    _timerLabel = Label::createWithTTF("Timer: 45", "fonts/arial.ttf", 24.0f);
-    _timerLabel->setTextColor(TextColor);
-    _timerLabel->setAnchorPoint(Vec2::ANCHOR_TOP_RIGHT);
-    _timerLabel->setPosition(origin.x + visibleSize.width - 16.0f, origin.y + visibleSize.height - 16.0f);
-    addChild(_timerLabel);
+    _hud = RippleHud::create(visibleSize);
+    _hud->setPosition(origin);
+    addChild(_hud);
 }
 
 void RippleTankScene::initWater(const Size& visibleSize)
@@ -108,51 +94,24 @@ void RippleTankScene::initContacts()
         _contacts.push_back(contact);
     }
 }
-void RippleTankScene::initStartLayer(const Size& visibleSize)
+void RippleTankScene::initStartPrompt(const Size& visibleSize)
 {
-    auto label = Label::createWithTTF("Click the surface to send a ripple", "fonts/arial.ttf", 24.0f);
-    label->setTextColor(TextColor);
-    Size layerSize = label->getContentSize() + Size(20.f, 20.f);
-
-    _startLayer = LayerColor::create(Color4B(10, 20, 34, 255));
-    _startLayer->setContentSize(layerSize);
-
-    label->setPosition(layerSize / 2.0f);
-    _startLayer->addChild(label);
-    _startLayer->setPosition((visibleSize - layerSize) / 2.0f);
-    addChild(_startLayer, 1);
+    _startPrompt = StartPrompt::create();
+    _startPrompt->centerIn(visibleSize);
+    addChild(_startPrompt, 1);
 }
 
-void RippleTankScene::initEndLayer(const Size& visibleSize)
+void RippleTankScene::initRoundOver()
 {
-    _endLayer = LayerColor::create(Color4B(10, 20, 34, 192));
-    _endLayer->setVisible(false);
-    addChild(_endLayer, 1);
-
-    const float midX = visibleSize.width / 2.0f;
-    const float midY = visibleSize.height / 2.0f;
-
-    auto endLabel = Label::createWithTTF("ROUND OVER", "fonts/arial.ttf", 24.0f);
-    endLabel->setTextColor(TextColor);
-    endLabel->setPosition(midX, midY + 28.0f);
-    _endLayer->addChild(endLabel);
-
-    _endScoreLabel = Label::createWithTTF("Score: 0", "fonts/arial.ttf", 24.0f);
-    _endScoreLabel->setTextColor(TextColor);
-    _endScoreLabel->setPosition(midX, midY);
-    _endLayer->addChild(_endScoreLabel);
-
-    auto startLabel = Label::createWithTTF("Press R to restart", "fonts/arial.ttf", 24.0f);
-    startLabel->setTextColor(TextColor);
-    startLabel->setPosition(midX, midY - 28.0f);
-    _endLayer->addChild(startLabel);
+    _roundOver = RoundOverLayer::create();
+    addChild(_roundOver, 1);
 }
 
 void RippleTankScene::initGame()
 {
     _game = std::make_unique<TankGame>(ax::Vec2(Water::GRID_SIZE, Water::GRID_SIZE));
-    _game->onScoreChanged = [this](const int score) { _scoreLabel->setString(fmt::format("Score: {}", score)); };
-    _game->onTimerChanged = [this](const int timer) { _timerLabel->setString(fmt::format("Timer: {}", timer)); };
+    _game->onScoreChanged = [this](const int score) { _hud->setScore(score); };
+    _game->onTimerChanged = [this](const int timer) { _hud->setTimer(timer); };
     _game->onStateChanged = [this](const TankGame::State state) { onStateChanged(state); };
 }
 
@@ -161,21 +120,20 @@ void RippleTankScene::onStateChanged(const TankGame::State state) const
     switch (state) {
         case TankGame::State::START:
             _touchListener->setEnabled(true);
-            _endLayer->setVisible(false);
+            _roundOver->hide();
             _water->flatten();
-            _startLayer->setVisible(true);
+            _startPrompt->setVisible(true);
             syncContacts();
             break;
 
         case TankGame::State::PLAY:
-            _startLayer->setVisible(false);
+            _startPrompt->setVisible(false);
             break;
 
         case TankGame::State::END:
             _touchListener->setEnabled(false);
             _water->flatten();
-            _endScoreLabel->setString(_scoreLabel->getString());
-            _endLayer->setVisible(true);
+            _roundOver->show(_game->getScore());
             break;
     }
 }
