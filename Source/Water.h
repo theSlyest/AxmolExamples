@@ -1,7 +1,11 @@
 #pragma once
 
+#include <optional>
+
 #include "2d/Sprite.h"
 #include "RippleField.h"
+
+namespace ax { class Touch; }
 
 class Water : public ax::Sprite
 {
@@ -17,7 +21,11 @@ public:
 
     void update(float dt) override;
 
-    bool onTouch(ax::Touch* touch, ax::Event* event);
+    // Where a touch landed on the water, or nothing if it landed elsewhere.
+    [[nodiscard]] std::optional<ax::Vec2> locate(ax::Touch* touch) const;
+
+    // Send a ripple from a point of the water.
+    void sendRipple(const ax::Vec2& position);
 
     void flatten();
 

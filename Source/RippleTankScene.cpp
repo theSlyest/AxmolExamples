@@ -1,7 +1,6 @@
 #include "RippleTankScene.h"
 
 #include "Director.h"
-#include "EventDispatcher.h"
 #include "Theme.h"
 
 USING_NS_AX;
@@ -26,8 +25,7 @@ bool RippleTankScene::init()
     initStartPrompt(visibleSize);
     initRoundOver();
 
-    initTouchListener();
-    initKeyboardListener();
+    initControls();
     initGame();
 
     _game->reset();
@@ -50,40 +48,25 @@ void RippleTankScene::initWater(const Size& visibleSize)
     addChild(_water);
 }
 
-void RippleTankScene::initTouchListener()
+void RippleTankScene::initControls()
 {
-    _touchListener = EventListenerTouchOneByOne::create();
-    _touchListener->onTouchBegan = [this](Touch* touch, Event* event) -> bool { 
-        return onTouchBegan(touch, event); 
-    };
-    _eventDispatcher->addEventListenerWithSceneGraphPriority(_touchListener, _water);
+    _controls = RippleControls::create();
+    _controls->onTouch = [this](Touch* touch) { return onTouch(touch); };
+    _controls->onRestart = [this] { _game->reset(); };
+    addChild(_controls);
 }
 
-bool RippleTankScene::onTouchBegan(ax::Touch* touch, ax::Event* event)
+bool RippleTankScene::onTouch(Touch* touch)
 {
     _game->start();
 
-    if (_water->onTouch(touch, event)) {
-        _game->strike(_water->convertTouchToNodeSpace(touch));
+    if (const auto position = _water->locate(touch)) {
+        _water->sendRipple(*position);
+        _game->strike(*position);
         return true;
     }
 
     return false;
-}
-
-void RippleTankScene::initKeyboardListener()
-{
-    _keyboardListener = EventListenerKeyboard::create();
-    _keyboardListener->onKeyPressed = [this](EventKeyboard::KeyCode key, Event* event) {
-        onKeyPressed(key, event);
-    };
-    _eventDispatcher->addEventListenerWithSceneGraphPriority(_keyboardListener, this);
-}
-
-void RippleTankScene::onKeyPressed(const EventKeyboard::KeyCode key, Event* event) const
-{
-    if (key == EventKeyboard::KeyCode::KEY_R)
-        _game->reset();
 }
 
 void RippleTankScene::initContacts()
@@ -119,7 +102,7 @@ void RippleTankScene::onStateChanged(const TankGame::State state) const
 {
     switch (state) {
         case TankGame::State::START:
-            _touchListener->setEnabled(true);
+            _controls->setTouchEnabled(true);
             _roundOver->hide();
             _water->flatten();
             _startPrompt->setVisible(true);
@@ -131,7 +114,7 @@ void RippleTankScene::onStateChanged(const TankGame::State state) const
             break;
 
         case TankGame::State::END:
-            _touchListener->setEnabled(false);
+            _controls->setTouchEnabled(false);
             _water->flatten();
             _roundOver->show(_game->getScore());
             break;

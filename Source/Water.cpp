@@ -2,6 +2,8 @@
 
 #include <vector>
 
+#include "base/Touch.h"
+
 USING_NS_AX;
 
 const Color4B Water::LineColor(42, 169, 192, 255); // #2aa9c0
@@ -106,15 +108,18 @@ PolygonInfo Water::createMesh()
     return polygonInfo;
 }
 
-bool Water::onTouch(Touch* touch, Event* event)
+std::optional<Vec2> Water::locate(Touch* touch) const
 {
-    if (getBoundingBox().containsPoint(touch->getLocation())) {
-        _ripples.add(convertTouchToNodeSpace(touch));
-        _isFlat = false;
-        return true;
-    }
+    if (!getBoundingBox().containsPoint(touch->getLocation()))
+        return std::nullopt;
 
-    return false;
+    return convertTouchToNodeSpace(touch);
+}
+
+void Water::sendRipple(const Vec2& position)
+{
+    _ripples.add(position);
+    _isFlat = false;
 }
 
 void Water::updateMesh()
