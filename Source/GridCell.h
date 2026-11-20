@@ -2,9 +2,7 @@
 
 #include "2d/DrawNode.h"
 #include "2d/Layer.h"
-
-enum class CellState { EMPTY, MIRROR, WALL, TARGET };
-enum class LaserSide { LEFT, BOTTOM, RIGHT, TOP };
+#include "LaserBoard.h"
 
 class GridCell : public ax::LayerColor
 {
