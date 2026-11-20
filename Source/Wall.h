@@ -2,6 +2,7 @@
 
 #include "GridCell.h"
 
+// A wall: a solid block that stops the beam.
 class Wall : public GridCell
 {
 public:
@@ -9,12 +10,9 @@ public:
     static const ax::Color4F WALL_COLOR;
 
     bool init() override;
-    
-    // implement the "static create()" method manually
+
     CREATE_FUNC(Wall);
 
-    void onTouch() override {}
-
-protected:
-    bool drawBeam(LaserSide from, LaserSide& to) override;
+    // The beam stops at the wall's edge.
+    void showBeam(LaserSide from, std::optional<LaserSide> to) override;
 };

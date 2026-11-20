@@ -13,12 +13,8 @@ public:
     // implement the "static create()" method manually
     CREATE_FUNC(Target);
 
-    bool isLit() const override { return _lightNode->isVisible(); }
-
-    void onTouch() override {}
-
-protected:
-    bool drawBeam(LaserSide from, LaserSide& to) override;
+    // The beam ends at the target and lights it up.
+    void showBeam(LaserSide from, std::optional<LaserSide> to) override;
     void clearBeam() override;
 
 private:

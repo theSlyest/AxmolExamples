@@ -13,8 +13,6 @@ bool Target::init()
         return false;
     }
 
-    _state = CellState::TARGET;
-
     constexpr Vec2 center(SIZE / 2.0f, SIZE / 2.0f);
     constexpr Vec2 size(SIZE, SIZE);
 
@@ -33,26 +31,11 @@ bool Target::init()
     return true;
 }
 
-bool Target::drawBeam(const LaserSide from, LaserSide &)
+void Target::showBeam(const LaserSide from, std::optional<LaserSide>)
 {
-    constexpr Vec2 center(SIZE / 2.0f, SIZE / 2.0f);
-    switch (from) {
-        case LaserSide::LEFT:
-            _beamNode->drawLine(Vec2(-1.0f, SIZE / 2.0f), center, BEAM_COLOR);
-            break;
-        case LaserSide::RIGHT:
-            _beamNode->drawLine(Vec2(SIZE + 1.0f, SIZE / 2.0f), center, BEAM_COLOR);
-            break;
-        case LaserSide::BOTTOM:
-            _beamNode->drawLine(Vec2(SIZE / 2.0f, -1.0f), center, BEAM_COLOR);
-            break;
-        case LaserSide::TOP:
-            _beamNode->drawLine(Vec2(SIZE / 2.0f, SIZE + 1.0f), center, BEAM_COLOR);
-            break;
-    }
-    
+    // The beam ends at the center, drawn thin.
+    _beamNode->drawLine(edgePoint(from), Vec2(SIZE / 2.0f, SIZE / 2.0f), BEAM_COLOR);
     _lightNode->setVisible(true);
-    return false;
 }
 
 void Target::clearBeam()

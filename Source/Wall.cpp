@@ -9,30 +9,22 @@ bool Wall::init()
     if (!GridCell::init())
         return false;
 
-    _state = CellState::WALL;
-
     constexpr float offset = (SIZE - WALL_SIZE) / 2.0f;
     _drawNode->drawSolidRect(Vec2(offset, offset), Vec2(SIZE - offset, SIZE - offset), WALL_COLOR);
 
     return true;
 }
 
-bool Wall::drawBeam(const LaserSide from, LaserSide &to)
+void Wall::showBeam(const LaserSide from, std::optional<LaserSide>)
 {
     constexpr float offset = (SIZE - WALL_SIZE) / 2.0f;
+    Vec2 end;
     switch (from) {
-        case LaserSide::LEFT:
-            _beamNode->drawLine(Vec2(-1.0f, SIZE / 2.0f), Vec2(offset, SIZE / 2.0f), BEAM_COLOR, BEAM_WIDTH);
-            break;
-        case LaserSide::RIGHT:
-            _beamNode->drawLine(Vec2(SIZE + 1.0f, SIZE / 2.0f), Vec2(SIZE - offset, SIZE / 2.0f), BEAM_COLOR, BEAM_WIDTH);
-            break;
-        case LaserSide::BOTTOM:
-            _beamNode->drawLine(Vec2(SIZE / 2.0f, -1.0f), Vec2(SIZE / 2.0f, offset), BEAM_COLOR, BEAM_WIDTH);
-            break;
-        case LaserSide::TOP:
-            _beamNode->drawLine(Vec2(SIZE / 2.0f, SIZE + 1.0f), Vec2(SIZE / 2.0f, SIZE - offset), BEAM_COLOR, BEAM_WIDTH);
-            break;
+        case LaserSide::LEFT:   end = Vec2(offset, SIZE / 2.0f); break;
+        case LaserSide::RIGHT:  end = Vec2(SIZE - offset, SIZE / 2.0f); break;
+        case LaserSide::BOTTOM: end = Vec2(SIZE / 2.0f, offset); break;
+        case LaserSide::TOP:    end = Vec2(SIZE / 2.0f, SIZE - offset); break;
     }
-    return false;
+
+    _beamNode->drawLine(edgePoint(from), end, BEAM_COLOR, BEAM_WIDTH);
 }

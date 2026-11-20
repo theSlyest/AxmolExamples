@@ -17,6 +17,8 @@ bool LaserMirrorScene::init()
     const auto visibleSize = _director->getVisibleSize();
     const Vec2 origin = _director->getVisibleOrigin();
 
+    _board = std::make_unique<LaserBoard>(LEVEL, EMITTER_SIDE, EMITTER_POS, INITIAL_MIRRORS);
+
     initGrid(visibleSize, origin);
     initPanel(visibleSize, origin);
     initBest(visibleSize, origin);
@@ -33,9 +35,8 @@ bool LaserMirrorScene::init()
 
 void LaserMirrorScene::reset()
 {
-    _grid->reset(INITIAL_GRID);
-    _grid->positionEmitter(EMITTER_SIDE, EMITTER_POS);
-    _grid->refreshBeam();
+    _board->reset();
+    _grid->refresh();
 
     setMirrors(0);
     setRemaining(INITIAL_MIRRORS);
@@ -46,7 +47,7 @@ void LaserMirrorScene::reset()
 
 void LaserMirrorScene::initGrid(const Size &visibleSize, const Vec2 origin)
 {
-    _grid = LaserGrid::create();
+    _grid = LaserGrid::create(*_board);
     _grid->setAnchorPoint(Vec2::ANCHOR_MIDDLE);
     _grid->setPosition(origin.x + visibleSize.width / 2.0f, origin.y + visibleSize.height / 2.0f);
     addChild(_grid);
@@ -96,20 +97,26 @@ void LaserMirrorScene::initTouchListener()
 
 bool LaserMirrorScene::onTouchBegan(Touch *touch, Event *event)
 {
-    if (!_isSolved && _grid->onTouch(touch, _grid->countMirrors() == INITIAL_MIRRORS)) {
-        const int mirrorCount = _grid->countMirrors();
-        setMirrors(mirrorCount);
-        setRemaining(INITIAL_MIRRORS - mirrorCount);
+    if (_isSolved)
+        return false;
 
-        if (_grid->isTargetReached()) {
-            _isSolved = true;
-            showPanel();
-        }
+    const auto cell = _grid->cellAt(touch);
+    if (!cell)
+        return false;
 
-        return true;
+    _board->cycleMirror(cell->first, cell->second);
+    _grid->refresh();
+
+    const int mirrorCount = _board->getMirrorCount();
+    setMirrors(mirrorCount);
+    setRemaining(_board->getRemainingMirrors());
+
+    if (_board->isSolved()) {
+        _isSolved = true;
+        showPanel();
     }
 
-    return false;
+    return true;
 }
 
 void LaserMirrorScene::setBest(const int value)

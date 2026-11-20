@@ -2,6 +2,7 @@
 
 #include "GridCell.h"
 
+// A cell that can hold a mirror. It shows the mirror it is told to show.
 class Mirror : public GridCell
 {
 public:
@@ -9,19 +10,15 @@ public:
     static const ax::Color4F MIRROR_COLOR;
 
     bool init() override;
-    
+
     CREATE_FUNC(Mirror);
 
-    void onTouch() override;
+    // Show a mirror running from the top left to the bottom right ("\") or from
+    // the bottom left to the top right ("/"), or no mirror at all.
+    void setMirror(bool present, bool backslash) const;
 
-    bool drawBeam(LaserSide from, LaserSide& to) override;
-
-protected:
+private:
     static constexpr float WIDTH = 6.0f;
+
     ax::DrawNode* _mirrorNode = nullptr;
-    bool _isTopLeft = false; // is Top-Left to Bottom-Right
-
-    void drawMirror() const;
-
-    bool drawReflectedBeam(LaserSide from, LaserSide& to) const;
 };

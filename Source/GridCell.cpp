@@ -9,9 +9,7 @@ const Color4F GridCell::BEAM_COLOR(0.95f, 0.77f, 0.06f, 1.0f);
 bool GridCell::init()
 {
     if (!LayerColor::initWithColor(BG_COLOR, SIZE, SIZE))
-    {
         return false;
-    }
 
     constexpr Vec2 size(SIZE, SIZE);
     setContentSize(size);
@@ -28,30 +26,32 @@ bool GridCell::init()
     return true;
 }
 
-bool GridCell::laserOn(const LaserSide from, LaserSide &to)
+Vec2 GridCell::edgePoint(const LaserSide side)
 {
-    _isLit = true;
-    return drawBeam(from, to);
-}
-
-void GridCell::laserOff()
-{
-    _isLit = false;
-    clearBeam();
-}
-
-bool GridCell::drawBeam(const LaserSide from, LaserSide &to)
-{
-    if (from == LaserSide::LEFT || from == LaserSide::RIGHT) {
-        _beamNode->drawLine(Vec2(-1.0f, SIZE / 2.0f), Vec2(SIZE + 1.0f, SIZE / 2.0f), BEAM_COLOR, BEAM_WIDTH);
-        to = from == LaserSide::LEFT ? LaserSide::RIGHT : LaserSide::LEFT;
-    }
-    else {
-        _beamNode->drawLine(Vec2(SIZE / 2.0f, -1.0f), Vec2(SIZE / 2.0f, SIZE + 1.0f), BEAM_COLOR, BEAM_WIDTH);
-        to = from == LaserSide::BOTTOM ? LaserSide::TOP : LaserSide::BOTTOM;
+    switch (side) {
+        case LaserSide::LEFT:   return { -1.0f, SIZE / 2.0f };
+        case LaserSide::RIGHT:  return { SIZE + 1.0f, SIZE / 2.0f };
+        case LaserSide::BOTTOM: return { SIZE / 2.0f, -1.0f };
+        case LaserSide::TOP:    return { SIZE / 2.0f, SIZE + 1.0f };
     }
 
-    return true;
+    return Vec2::ZERO;
+}
+
+void GridCell::showBeam(const LaserSide from, const std::optional<LaserSide> to)
+{
+    constexpr Vec2 center(SIZE / 2.0f, SIZE / 2.0f);
+
+    if (!to || *to == LaserBoard::opposite(from)) {
+        // Straight through (or, without an exit, as far as the center).
+        const Vec2 end = to ? edgePoint(*to) : center;
+        _beamNode->drawLine(edgePoint(from), end, BEAM_COLOR, BEAM_WIDTH);
+        return;
+    }
+
+    // A turn: in to the center, then out.
+    _beamNode->drawLine(edgePoint(from), center, BEAM_COLOR, BEAM_WIDTH);
+    _beamNode->drawLine(center, edgePoint(*to), BEAM_COLOR, BEAM_WIDTH);
 }
 
 void GridCell::clearBeam()

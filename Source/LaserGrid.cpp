@@ -1,24 +1,34 @@
 #include "LaserGrid.h"
 
-#include "Mirror.h"
 #include "Target.h"
 #include "Wall.h"
+#include "base/Touch.h"
 
 USING_NS_AX;
 
 const Color4F LaserGrid::BORDER_COLOR(0.17f, 0.25f, 0.31f, 1.0f);
 
-const std::map<LaserSide, std::pair<int, int>> LaserGrid::SHIFTS {
-    { LaserSide::LEFT,   {  0, -1 } },
-    { LaserSide::RIGHT,  {  0,  1 } },
-    { LaserSide::BOTTOM, { -1,  0 } },
-    { LaserSide::TOP,    {  1,  0 } }
-};
+LaserGrid* LaserGrid::create(const LaserBoard& board)
+{
+    if (auto* pRet = new (std::nothrow) LaserGrid(); pRet && pRet->init(board))
+    {
+        pRet->autorelease();
+        return pRet;
+    }
+    else
+    {
+        delete pRet;
+        pRet = nullptr;
+        return nullptr;
+    }
+}
 
-bool LaserGrid::init()
+bool LaserGrid::init(const LaserBoard& board)
 {
     if (!DrawNode::init())
         return false;
+
+    _board = &board;
 
     constexpr Vec2 size(2.0f * BORDER + GridCell::SIZE * COLS, 2.0f * BORDER + GridCell::SIZE * ROWS);
     setContentSize(size);
@@ -28,18 +38,38 @@ bool LaserGrid::init()
 
     initCells();
     initEmitter();
-
-    _emitterSide = LaserSide::LEFT;
-    _emitterRow = 0;
-    _emitterCol = 0;
+    refresh();
 
     return true;
 }
 
 void LaserGrid::initCells()
 {
-    for (int r = 0; r < ROWS; ++r) {
+    for (int row = 0; row < ROWS; ++row) {
         _cells.emplace_back(COLS, nullptr);
+        _mirrors.emplace_back(COLS, nullptr);
+
+        for (int col = 0; col < COLS; ++col) {
+            GridCell* cell;
+            switch (_board->getState(row, col)) {
+                case CellState::WALL:
+                    cell = Wall::create();
+                    break;
+
+                case CellState::TARGET:
+                    cell = Target::create();
+                    break;
+
+                default:
+                    _mirrors[row][col] = Mirror::create();
+                    cell = _mirrors[row][col];
+                    break;
+            }
+
+            cell->setPosition(BORDER + col * GridCell::SIZE, BORDER + row * GridCell::SIZE);
+            addChild(cell);
+            _cells[row][col] = cell;
+        }
     }
 }
 
@@ -47,165 +77,72 @@ void LaserGrid::initEmitter()
 {
     _emitter = Emitter::create();
     addChild(_emitter);
-}
 
-LaserSide LaserGrid::invertSide(LaserSide side) const
-{
-    return static_cast<LaserSide>((static_cast<int>(side) + 2) % 4);
-}
-
-void LaserGrid::positionEmitter(const LaserSide side, const int position)
-{
-    _emitterSide = side;
-
-    float x;
-    float y;
-    float angle;
+    // The emitter sits outside the grid, in front of its row or column, pointing in.
+    const int position = _board->getEmitterPos();
     const float padding = (GridCell::SIZE - Emitter::SIZE.height) / 2.0f;
+    float x = 0.0f;
+    float y = 0.0f;
+    float angle = 0.0f;
 
-    switch (side)
-    {
-    default:
-    case LaserSide::LEFT:
-        _emitterRow = position;
-        _emitterCol = 0;
-        x = BORDER - Emitter::SIZE.width;
-        y = BORDER + position * GridCell::SIZE + padding;
-        angle = 0.0f;
-        break;
+    switch (_board->getEmitterSide()) {
+        case LaserSide::LEFT:
+            x = BORDER - Emitter::SIZE.width;
+            y = BORDER + position * GridCell::SIZE + padding;
+            angle = 0.0f;
+            break;
 
-    case LaserSide::RIGHT:
-        _emitterRow = position;
-        _emitterCol = COLS - 1;
-        x = _contentSize.width - BORDER;
-        y = BORDER + position * GridCell::SIZE + padding;
-        angle = 180.0f;
-        break;
+        case LaserSide::RIGHT:
+            x = _contentSize.width - BORDER;
+            y = BORDER + position * GridCell::SIZE + padding;
+            angle = 180.0f;
+            break;
 
-    case LaserSide::BOTTOM:
-        _emitterRow = 0;
-        _emitterCol = position;
-        x = BORDER + position * GridCell::SIZE + padding;
-        y = BORDER - Emitter::SIZE.width;
-        angle = 90.0f;
-        break;
+        case LaserSide::BOTTOM:
+            x = BORDER + position * GridCell::SIZE + padding;
+            y = BORDER - Emitter::SIZE.width;
+            angle = 90.0f;
+            break;
 
-    case LaserSide::TOP:
-        _emitterRow = ROWS - 1;
-        _emitterCol = position;
-        x = BORDER + position * GridCell::SIZE + padding;
-        y = _contentSize.height - BORDER;
-        angle = 270.0f;
-        break;
+        case LaserSide::TOP:
+            x = BORDER + position * GridCell::SIZE + padding;
+            y = _contentSize.height - BORDER;
+            angle = 270.0f;
+            break;
     }
 
-    _cells[_emitterRow][_emitterCol]->setTag(1);
     _emitter->setRotation(angle);
     _emitter->setPosition(x, y);
 }
 
-void LaserGrid::reset(const std::vector<std::vector<CellState>> &states)
+void LaserGrid::refresh() const
 {
-    for (int r = 0; r < ROWS; ++r) {
-        for (int c = 0; c < COLS; ++c) {
+    for (const auto& row : _cells) {
+        for (GridCell* cell : row)
+            cell->clearBeam();
+    }
 
-            if (_cells[r][c] != nullptr) {
-                removeChild(_cells[r][c], true);
-            }
-
-            CellState state = states[r][c];
-            if (state == CellState::EMPTY) {
-                _cells[r][c] = Mirror::create();
-            }
-            else if (state == CellState::WALL) {
-                _cells[r][c] = Wall::create();
-            }
-            else {
-                _cells[r][c] = Target::create();
-            }
-
-            _cells[r][c]->setPosition(BORDER + c * GridCell::SIZE, BORDER + r * GridCell::SIZE);
-            addChild(_cells[r][c]);
+    for (int row = 0; row < ROWS; ++row) {
+        for (int col = 0; col < COLS; ++col) {
+            if (Mirror* mirror = _mirrors[row][col])
+                mirror->setMirror(_board->getState(row, col) == CellState::MIRROR, _board->isBackslash(row, col));
         }
     }
 
-    _mirrorCount = 0;
-    _isTargetReached = false;
+    for (const auto& step : _board->getBeam().steps)
+        _cells[step.row][step.col]->showBeam(step.from, step.to);
 }
 
-void LaserGrid::clearBeam() const
+std::optional<std::pair<int, int>> LaserGrid::cellAt(Touch* touch) const
 {
-    for (auto& row : _cells) {
-        for (GridCell* cell : row) {
-            if (cell->isLit())
-                cell->laserOff();
-        }
-    }
-}
+    const Vec2 position = convertTouchToNodeSpace(touch) - Vec2(BORDER, BORDER);
+    if (position.x < 0.0f || position.y < 0.0f)
+        return std::nullopt;
 
-bool LaserGrid::refreshBeam()
-{
-    clearBeam();
-    _isTargetReached = false;
+    const int col = static_cast<int>(position.x / GridCell::SIZE);
+    const int row = static_cast<int>(position.y / GridCell::SIZE);
+    if (row >= ROWS || col >= COLS)
+        return std::nullopt;
 
-    int row;
-    int col;
-    if (_emitterSide == LaserSide::LEFT || _emitterSide == LaserSide::RIGHT) {
-        row = _emitterRow;
-        col = _emitterSide == LaserSide::LEFT ? -1 : COLS;
-    }
-    else {
-        row = _emitterSide == LaserSide::BOTTOM ? -1 : ROWS;
-        col = _emitterCol;
-    }
-
-    LaserSide from;
-    LaserSide to = invertSide(_emitterSide);
-    do {
-        auto shift = SHIFTS.at(to);
-        row += shift.first;
-        col += shift.second;
-        from = invertSide(to);
-    } while (row > -1 && row < ROWS && col > -1 && col < COLS && _cells[row][col]->laserOn(from, to));
-
-    if (row > -1 && row < ROWS && col > -1 && col < COLS)
-        _isTargetReached = _cells[row][col]->getState() == CellState::TARGET;
-
-    return _isTargetReached;
-}
-
-bool LaserGrid::onTouch(Touch *touch, bool maxReached)
-{
-    const Vec2& touchPos = convertTouchToNodeSpace(touch);
-    for (auto& row : _cells) {
-        for (GridCell* cell : row) {
-            if (cell->getBoundingBox().containsPoint(touchPos)) {
-
-                if (cell->getTag() == 1)
-                    return true;
-
-                CellState state = cell->getState();
-                if (state == CellState::EMPTY || state == CellState::MIRROR) {
-
-                    if (state == CellState::EMPTY && maxReached)
-                        return true;
-
-                    cell->onTouch();
-
-                    if (state != cell->getState()) {
-                        if (state == CellState::EMPTY)
-                            ++_mirrorCount;
-                        else
-                            --_mirrorCount;
-                    }
-
-                    if (cell->isLit())
-                        refreshBeam();
-                }
-                return true;
-            }
-        }
-    }
-
-    return false;
+    return std::make_pair(row, col);
 }

@@ -1,9 +1,14 @@
 #pragma once
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "2d/Scene.h"
 #include "EventListenerTouch.h"
 
 #include "HudValue.h"
+#include "LaserBoard.h"
 #include "LaserGrid.h"
 #include "SolvedPanel.h"
 
@@ -18,15 +23,16 @@ public:
     void reset();
 
 private:
-    static inline const std::vector<std::vector<CellState>> INITIAL_GRID {
-        { CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY },
-        { CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::WALL, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY },
-        { CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::WALL, CellState::EMPTY, CellState::WALL, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY },
-        { CellState::EMPTY, CellState::EMPTY, CellState::WALL, CellState::EMPTY, CellState::EMPTY, CellState::TARGET, CellState::WALL, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY },
-        { CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::WALL, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY },
-        { CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY },
-        { CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY },
-        { CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY, CellState::EMPTY }
+    // The puzzle, from the top row down: '.' is an empty cell, '#' a wall and 'T' the target.
+    static inline const std::vector<std::string> LEVEL {
+        "............",
+        "............",
+        "............",
+        ".....#......",
+        "..#..T#.....",
+        "...#.#......",
+        "....#.......",
+        "............",
     };
 
     static constexpr float HUD_TOP = 32.0f;     // space above the HUD boxes
@@ -36,6 +42,7 @@ private:
     static constexpr int EMITTER_POS = 6;
     static constexpr const char* BEST_KEY = "BEST";
 
+    std::unique_ptr<LaserBoard> _board;
     LaserGrid* _grid = nullptr;
 
     bool _isSolved = false;
