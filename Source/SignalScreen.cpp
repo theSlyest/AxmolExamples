@@ -19,7 +19,7 @@ const std::vector<Color4B> SignalScreen::TV_COLORS {
 };
 
 const Vec2 SignalScreen::SIZE(880.0f, 660.0f);
-// Compiled from Source/shaders/tv_glitch.frag at build time (see ax_target_compile_shaders).
+// Compiled from Shaders/tv_glitch.frag at build time (see ax_target_compile_shaders).
 const std::string SignalScreen::FRAG_SHADER = "custom/tv_glitch_fs";
 
 bool SignalScreen::init()

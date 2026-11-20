@@ -106,6 +106,17 @@ endif()
 
 include(AXGameTargetSetup)
 
+# Compile the app's shaders with axslcc for every backend. They are loaded by
+# name, e.g. "custom/tv_glitch_fs". This is done here rather than by putting
+# them in Source/shaders, which ax_setup_app_config compiles for every target:
+# the unit test target would compile them a second time, and CMake rejects a
+# custom command attached to two targets.
+ax_find_shaders("${CMAKE_CURRENT_SOURCE_DIR}/Shaders" APP_SHADERS RECURSE)
+if(APP_SHADERS)
+  ax_target_compile_shaders(${APP_NAME} FILES ${APP_SHADERS} CUSTOM)
+  source_group("Shaders" FILES ${APP_SHADERS})
+endif()
+
 # mark app resources, resource will be copy auto after mark
 ax_setup_app_config(${APP_NAME})
 
