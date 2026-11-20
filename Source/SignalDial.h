@@ -14,7 +14,7 @@ public:
     // implement the "static create()" method manually
     CREATE_FUNC(SignalDial);
 
-    float tuneBy(float shift);
+    float tuneBy(float shift) const;
 
     void reset() const;
 

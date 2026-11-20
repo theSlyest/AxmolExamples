@@ -24,7 +24,12 @@
  ****************************************************************************/
 
 #include "AppDelegate.h"
+
+#include "Director.h"
+#include "RenderView.h"
+#include "RenderViewImpl.h"
 #include "SignalLockScene.h"
+#include "Utils.h"
 
 #define USE_AUDIO_ENGINE 1
 
@@ -38,7 +43,7 @@
 
 using namespace ax;
 
-static ax::Size designResolutionSize = ax::Size(1024, 1024);
+static auto designResolutionSize = Vec2(1024, 1024);
 
 AppDelegate::AppDelegate() {}
 
@@ -59,7 +64,7 @@ void AppDelegate::initGfxContextAttrs()
 bool AppDelegate::applicationDidFinishLaunching()
 {
     // initialize director
-    auto director = Director::getInstance();
+    const auto director = Director::getInstance();
     auto renderView   = director->getRenderView();
     if (!renderView)
     {
@@ -84,7 +89,7 @@ bool AppDelegate::applicationDidFinishLaunching()
 
 #if !_AX_TESTS
     // create a scene. it's an autorelease object
-    auto scene = utils::createInstance<SignalLockScene>();
+    const auto scene = utils::createInstance<SignalLockScene>();
 
     // run
     director->runWithScene(scene);

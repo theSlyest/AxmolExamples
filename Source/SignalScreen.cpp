@@ -1,7 +1,7 @@
 #include "SignalScreen.h"
 
 #include "2d/ClippingNode.h"
-#include "glad/gl.h"
+#include "glfw/src/internal.h"
 #include "renderer/Shaders.h"
 #include "renderer/backend/ProgramManager.h"
 
@@ -68,7 +68,7 @@ void SignalScreen::drawRoundedRect(DrawNode *node, const Vec2 &start, const Vec2
     node->drawSolidCircle(Vec2(start.x + radius, dest.y - radius), radius, 0.0f, segments, color);
 }
 
-double SignalScreen::dist(int x1, int y1, int x2, int y2)
+double SignalScreen::dist(const int x1, const int y1, const int x2, const int y2)
 {
     const int xx = x1 - x2;
     const int yy = y1 - y2;

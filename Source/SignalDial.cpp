@@ -34,7 +34,7 @@ bool SignalDial::init()
     return true;
 }
 
-float SignalDial::tuneBy(const float shift)
+float SignalDial::tuneBy(const float shift) const
 {
     return tuneTo(std::max(0.0f, std::min(DIAL_WIDTH, _arrow->getPositionX() + shift)));
 }
