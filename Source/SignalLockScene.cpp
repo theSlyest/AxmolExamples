@@ -1,7 +1,6 @@
 #include "SignalLockScene.h"
 
 #include "Director.h"
-#include "fmt/format.h"
 
 USING_NS_AX;
 
@@ -17,19 +16,10 @@ bool SignalLockScene::init()
     const auto bg = LayerColor::create(Color4B(0x0b, 0x0f, 0x1a, 255));
     addChild(bg);
 
-    // Score
-    _scoreLabel = Label::createWithTTF("Score: 0", "fonts/arial.ttf", 24.0f);
-    _scoreLabel->setTextColor(UI_COLOR);
-    _scoreLabel->setAnchorPoint(Vec2::ANCHOR_TOP_LEFT);
-    _scoreLabel->setPosition(origin.x + LABELS_OFFSET, origin.y + size.y - LABELS_OFFSET);
-    addChild(_scoreLabel);
-
-    // Time
-    _timeLabel = Label::createWithTTF("Time: 00", "fonts/arial.ttf", 24.0f);
-    _timeLabel->setTextColor(UI_COLOR);
-    _timeLabel->setAnchorPoint(Vec2::ANCHOR_TOP_RIGHT);
-    _timeLabel->setPosition(origin.x + size.x - LABELS_OFFSET, origin.y + size.y - LABELS_OFFSET);
-    addChild(_timeLabel);
+    // HUD
+    _hud = SignalHud::create(size);
+    _hud->setPosition(origin);
+    addChild(_hud);
 
     // Dial
     _dial = SignalDial::create();
@@ -48,7 +38,9 @@ bool SignalLockScene::init()
     _screen->setPosition(origin.x + size.x * 0.5f, origin.y + SCREEN_BOTTOM);
     addChild(_screen);
 
-    initEndLayer(size);
+    // Game over layer
+    _endLayer = SignalGameOverLayer::create();
+    addChild(_endLayer);
 
     // Controls
     _controls = SignalControls::create();
@@ -71,8 +63,8 @@ void SignalLockScene::update(const float dt)
 void SignalLockScene::initGame()
 {
     _game = std::make_unique<SignalLockGame>();
-    _game->onScoreChanged = [this](const int score) { _scoreLabel->setString("Score: " + std::to_string(score)); };
-    _game->onTimeChanged = [this](const int time) { _timeLabel->setString(fmt::format("Time: {:2d}", time)); };
+    _game->onScoreChanged = [this](const int score) { _hud->setScore(score); };
+    _game->onTimeChanged = [this](const int time) { _hud->setTime(time); };
     _game->onGameOver = [this] { gameOver(); };
 }
 
@@ -84,37 +76,17 @@ void SignalLockScene::syncViews(const float dt) const
     _screen->update(dt);
 }
 
-void SignalLockScene::initEndLayer(const Size &size)
-{
-    _endLayer = LayerColor::create(Color4B(0, 0, 0, 128));
-    _endLayer->setVisible(false);
-    addChild(_endLayer);
-
-    const auto over = Label::createWithTTF("ROUND OVER", "fonts/arial.ttf", 36.0f);
-    over->setPosition(size.width / 2.0f, size.height / 2.0f + 48.0f);
-    _endLayer->addChild(over);
-
-    _endScoreLabel = Label::createWithTTF("Score: 0", "fonts/arial.ttf", 24.0f);
-    _endScoreLabel->setPosition(size.width / 2.0f, size.height / 2.0f);
-    _endLayer->addChild(_endScoreLabel);
-
-    const auto restart = Label::createWithTTF("Press R to restart", "fonts/arial.ttf", 18.0f);
-    restart->setPosition(size.width / 2.0f, size.height / 2.0f - 48.0f);
-    _endLayer->addChild(restart);
-}
-
 void SignalLockScene::reset()
 {
     _game->reset();
     syncViews(0.0f);
     _screen->reset();
-    _endLayer->setVisible(false);
+    _endLayer->hide();
     scheduleUpdate();
 }
 
 void SignalLockScene::gameOver()
 {
-    _endScoreLabel->setString(_scoreLabel->getString());
-    _endLayer->setVisible(true);
+    _endLayer->show(_game->getScore());
     unscheduleUpdate();
 }
