@@ -12,14 +12,6 @@ bool Contact::init()
     setAnchorPoint(Vec2::ANCHOR_MIDDLE);
 
     drawSolidCircle(Vec2(RADIUS, RADIUS), RADIUS, 0.0f, 24, Color4F(1.0f, 0.69f, 0.29f, 1.0f));
-    setRandomDirection();
 
     return true;
-}
-
-void Contact::setRandomDirection()
-{
-    const float randRadAngle = M_PI * rand_minus1_1();
-    _direction.x = cos(randRadAngle) * SPEED;
-    _direction.y = sin(randRadAngle) * SPEED;
 }

@@ -31,8 +31,10 @@ bool RippleTankScene::init()
 
     initTouchListener();
     initKeyboardListener();
+    initGame();
 
-    setStateStart();
+    _game->reset();
+    scheduleUpdate();
 
     return true;
 }
@@ -55,24 +57,11 @@ void RippleTankScene::initTimerLabel(const Vec2& origin, const Size& visibleSize
     addChild(_timerLabel);
 }
 
-void RippleTankScene::setScore(int score)
-{
-    _score = score;
-    _scoreLabel->setString(fmt::format("Score: {}", score));
-}
-
-void RippleTankScene::setTimer(int timer)
-{
-    _timer = timer;
-    _timerLabel->setString(fmt::format("Timer: {}", timer));
-}
-
 void RippleTankScene::initWater(const Size& visibleSize)
 {
     _water = Water::create();
     _water->setPosition(visibleSize.width / 2.0f, visibleSize.height / 2.0f - 20.0f);
     addChild(_water);
-    _waterSize = _water->getContentSize();
 }
 
 void RippleTankScene::initTouchListener()
@@ -86,13 +75,10 @@ void RippleTankScene::initTouchListener()
 
 bool RippleTankScene::onTouchBegan(ax::Touch* touch, ax::Event* event)
 {
-    if (!_isStatePlay) {
-        setStatePlay();
-    }
+    _game->start();
 
     if (_water->onTouch(touch, event)) {
-        Vec2 waterLocation = _water->convertTouchToNodeSpace(touch);
-        checkContactReached(waterLocation);
+        _game->strike(_water->convertTouchToNodeSpace(touch));
         return true;
     }
 
@@ -108,15 +94,15 @@ void RippleTankScene::initKeyboardListener()
     _eventDispatcher->addEventListenerWithSceneGraphPriority(_keyboardListener, this);
 }
 
-void RippleTankScene::onKeyPressed(EventKeyboard::KeyCode key, Event* event)
+void RippleTankScene::onKeyPressed(const EventKeyboard::KeyCode key, Event* event) const
 {
-    if (key ==  EventKeyboard::KeyCode::KEY_R)
-        setStateStart();
+    if (key == EventKeyboard::KeyCode::KEY_R)
+        _game->reset();
 }
 
 void RippleTankScene::initContacts()
 {
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < TankGame::CONTACT_COUNT; ++i) {
         auto contact = Contact::create();
         _water->addChild(contact);
         _contacts.push_back(contact);
@@ -162,117 +148,47 @@ void RippleTankScene::initEndLayer(const Size& visibleSize)
     _endLayer->addChild(startLabel);
 }
 
-void RippleTankScene::setStateStart()
+void RippleTankScene::initGame()
 {
-    _isStatePlay = false;
-
-    unscheduleUpdate();
-    unschedule("updateTimer");
-
-    _touchListener->setEnabled(true);
-    _endLayer->setVisible(false);
-    _water->flatten();
-
-    setScore(0);
-    setTimer(45);
-
-    for (Contact* contact : _contacts) {
-        contact->setPosition(randomWaterLocation());
-        contact->setRandomDirection();
-    }
-
-    _startLayer->setVisible(true);
+    _game = std::make_unique<TankGame>(ax::Vec2(Water::GRID_SIZE, Water::GRID_SIZE));
+    _game->onScoreChanged = [this](const int score) { _scoreLabel->setString(fmt::format("Score: {}", score)); };
+    _game->onTimerChanged = [this](const int timer) { _timerLabel->setString(fmt::format("Timer: {}", timer)); };
+    _game->onStateChanged = [this](const TankGame::State state) { onStateChanged(state); };
 }
 
-void RippleTankScene::setStatePlay()
+void RippleTankScene::onStateChanged(const TankGame::State state) const
 {
-    _isStatePlay = true;
-    scheduleUpdate();
-    updateTimer();
-    schedule([this](float dt) { updateTimer(); }, 1.0f, "updateTimer");
-    _startLayer->setVisible(false);
-}
+    switch (state) {
+        case TankGame::State::START:
+            _touchListener->setEnabled(true);
+            _endLayer->setVisible(false);
+            _water->flatten();
+            _startLayer->setVisible(true);
+            syncContacts();
+            break;
 
-void RippleTankScene::setStateEnd()
-{
-    _isStatePlay = false;
-    unscheduleUpdate();
-    unschedule("updateTimer");
+        case TankGame::State::PLAY:
+            _startLayer->setVisible(false);
+            break;
 
-    _touchListener->setEnabled(false);
-    _water->flatten();
-
-    _endScoreLabel->setString(_scoreLabel->getString());
-    _endLayer->setVisible(true);
-}
-
-Vec2 RippleTankScene::randomWaterLocation() const
-{
-    constexpr float padding = 16.0f;
-    return Vec2(
-        random(padding, _waterSize.width - padding),
-        random(padding, _waterSize.height - padding));
-}
-
-bool RippleTankScene::isWithinReach(const Vec2 posA, const Vec2 posB)
-{
-    return posA.getDistance(posB) <= RippleField::REACH;
-}
-
-void RippleTankScene::respawnContact(Contact* contact, const Vec2 touchLocation)
-{
-    Vec2 newLoc;
-    do {
-        newLoc = randomWaterLocation();
-    } while (isWithinReach(touchLocation, newLoc));
-    contact->setPosition(newLoc);
-    contact->setRandomDirection();
-}
-
-void RippleTankScene::checkContactReached(const Vec2 touchLocation)
-{
-    for (Contact* contact : _contacts) {
-        if (isWithinReach(touchLocation, contact->getPosition())) {
-            setScore(_score + 1);
-            respawnContact(contact, touchLocation);
-        }
+        case TankGame::State::END:
+            _touchListener->setEnabled(false);
+            _water->flatten();
+            _endScoreLabel->setString(_scoreLabel->getString());
+            _endLayer->setVisible(true);
+            break;
     }
 }
 
-void RippleTankScene::updateContact(const float dt, Contact* contact) const
+void RippleTankScene::syncContacts() const
 {
-    Vec2 pos = contact->getPosition();
-    pos += contact->getDirection() * dt;
-    contact->setPosition(pos);
-
-    Vec2 dir = contact->getDirection();
-
-    // Left and right edges of the water
-    if (pos.x - Contact::RADIUS <= 0.0f || pos.x + Contact::RADIUS >= _waterSize.width) {
-        dir.x *= -1;
-        contact->setDirection(dir);
-    }
-
-    // Bottom and top edges of the water
-    if (pos.y - Contact::RADIUS <= 0.0f || pos.y + Contact::RADIUS >= _waterSize.height) {
-        dir.y *= -1;
-        contact->setDirection(dir);
-    }
-}
-
-void RippleTankScene::updateTimer()
-{
-    if (const int timer = _timer - 1; timer == -1) {
-        setStateEnd();
-    }
-    else {
-        setTimer(timer);
-    }
+    const auto& contacts = _game->getContacts();
+    for (size_t i = 0; i < _contacts.size(); ++i)
+        _contacts[i]->setPosition(contacts[i].position);
 }
 
 void RippleTankScene::update(const float dt)
 {
-    for (Contact* contact : _contacts) {
-        updateContact(dt, contact);
-    }
+    _game->update(dt);
+    syncContacts();
 }

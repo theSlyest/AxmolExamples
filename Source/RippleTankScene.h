@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include "2d/Label.h"
@@ -9,6 +10,7 @@
 #include "EventListenerTouch.h"
 
 #include "Contact.h"
+#include "TankGame.h"
 #include "Water.h"
 
 class RippleTankScene : public ax::Scene
@@ -24,14 +26,10 @@ public:
 private:
     static const ax::Color4B TextColor;
 
+    std::unique_ptr<TankGame> _game;
+
     Water* _water = nullptr;
     std::vector<Contact*> _contacts;
-
-    int _score = 0;
-    int _timer = 0;
-    bool _isStatePlay = false;
-
-    ax::Size _waterSize;
 
     ax::Label* _scoreLabel = nullptr;
     ax::Label* _endScoreLabel = nullptr;
@@ -49,26 +47,17 @@ private:
     void initContacts();
     void initStartLayer(const ax::Size& visibleSize);
     void initEndLayer(const ax::Size& visibleSize);
+    void initGame();
 
     void initTouchListener();
     void initKeyboardListener();
 
-    void setScore(int score);
-    void setTimer(int timer);
-
     bool onTouchBegan(ax::Touch* touch, ax::Event* event);
-    void onKeyPressed(ax::EventKeyboard::KeyCode key, ax::Event* event);
+    void onKeyPressed(ax::EventKeyboard::KeyCode key, ax::Event* event) const;
 
-    void setStateStart();
-    void setStatePlay();
-    void setStateEnd();
+    // Show what the start, the play and the end of a round look like.
+    void onStateChanged(TankGame::State state) const;
 
-    ax::Vec2 randomWaterLocation() const;
-    void checkContactReached(ax::Vec2 touchLocation);
-    void respawnContact(Contact* contact, ax::Vec2 touchLocation);
-    bool isWithinReach(ax::Vec2 posA, ax::Vec2 posB);
-
-    void updateContact(float dt, Contact* contact) const;
-    void updateTimer();
+    // Move the contacts' nodes to where the game has them.
+    void syncContacts() const;
 };
-
