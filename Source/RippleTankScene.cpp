@@ -58,9 +58,8 @@ void RippleTankScene::initControls()
 
 bool RippleTankScene::onTouch(Touch* touch) const
 {
-    _game->start();
-
     if (const auto position = _water->locate(touch)) {
+        _game->start();
         _water->sendRipple(*position);
         _game->strike(*position);
         return true;

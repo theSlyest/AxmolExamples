@@ -4,7 +4,7 @@ A small ripple game built with Axmol. A water surface is a mesh that ripples def
 
 ## Gameplay
 
-- Click the surface to send a ripple. The first click starts the round.
+- Click the surface to send a ripple. The first click on the water starts the round; clicks elsewhere do nothing.
 - Four orange **contacts** drift slowly across the water and bounce off its edges.
 - Every contact within 150 pixels of your click scores a point and reappears somewhere else, away from the ripple.
 - The round lasts **45 seconds** from your first click. Press **R** to restart at any time.
@@ -46,7 +46,7 @@ RippleTankScene        builds the nodes, wires everything, forwards update(dt),
  └─ RoundOverLayer     the final score and "Press R to restart"
 ```
 
-When the player touches the screen, `RippleControls` hands the touch to the scene. The scene tells `TankGame` to start the round (the first touch only). If the touch is on the water, the scene asks `Water::locate` where, sends the ripple with `Water::sendRipple` for the picture, and calls `TankGame::strike` for the score. Every frame, the scene lets the game advance and moves the contact nodes to its positions; the game's callbacks update the HUD and show or hide the layers.
+When the player touches the screen, `RippleControls` hands the touch to the scene. The scene asks `Water::locate` where it landed. Touches outside the water are ignored. On the water, the scene tells `TankGame` to start the round (the first touch only), sends the ripple with `Water::sendRipple` for the picture, and calls `TankGame::strike` for the score. Every frame, the scene lets the game advance and moves the contact nodes to its positions; the game's callbacks update the HUD and show or hide the layers.
 
 ### The wave
 

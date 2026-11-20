@@ -42,7 +42,7 @@ private:
 
     void initControls();
 
-    // A touch starts the round and, on the water, sends a ripple. Returns true if it was on the water.
+    // A touch on the water starts the round (the first one) and sends a ripple. Returns true if it was on the water.
     bool onTouch(ax::Touch* touch) const;
 
     // Show what the start, the play and the end of a round look like.
