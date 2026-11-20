@@ -41,7 +41,7 @@ private:
     static constexpr int EMITTER_POS = 6;
 
     std::unique_ptr<LaserBoard> _board;
-    BestScore _best{ INITIAL_MIRRORS };
+    BestScore _best = BestScore::saved(INITIAL_MIRRORS);
 
     LaserGrid* _grid = nullptr;
     LaserHud* _hud = nullptr;
