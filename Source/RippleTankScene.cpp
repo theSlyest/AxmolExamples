@@ -216,7 +216,7 @@ Vec2 RippleTankScene::randomWaterLocation() const
 
 bool RippleTankScene::isWithinReach(const Vec2 posA, const Vec2 posB)
 {
-    return posA.getDistance(posB) <= Water::RIPPLE_REACH;
+    return posA.getDistance(posB) <= RippleField::REACH;
 }
 
 void RippleTankScene::respawnContact(Contact* contact, const Vec2 touchLocation)

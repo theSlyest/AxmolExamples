@@ -109,29 +109,12 @@ PolygonInfo Water::createMesh()
 bool Water::onTouch(Touch* touch, Event* event)
 {
     if (getBoundingBox().containsPoint(touch->getLocation())) {
-        _ripples.emplace_back(convertTouchToNodeSpace(touch));
+        _ripples.add(convertTouchToNodeSpace(touch));
         _isFlat = false;
         return true;
     }
 
     return false;
-}
-
-void Water::updateRipples(const float dt)
-{
-    for (auto it = _ripples.begin(); it != _ripples.end(); ) {
-        it->elapsed += dt;
-        it->radius += RIPPLE_SPEED * dt;
-
-        const float lifeRatio = it->elapsed / RIPPLE_LIFESPAN;
-        if (lifeRatio >= 1.0f) {
-            it = _ripples.erase(it);
-        }
-        else {
-            it->amplitude = RIPPLE_AMPLITUDE * (1.0f - lifeRatio);
-            ++it;
-        }
-    }
 }
 
 void Water::updateMesh()
@@ -145,32 +128,18 @@ void Water::updateMesh()
             // Baseline 2D point
             const auto baseX = static_cast<float>(x * CELL_SIZE);
             const auto baseY = static_cast<float>(y * CELL_SIZE);
-            float z = 0.0f;
 
-            for(const auto& ripple : _ripples) {
-                const float dx = baseX - ripple.origin.x;
-                const float dy = baseY - ripple.origin.y;
-                const float distance = sqrtf(dx * dx + dy * dy); // Pythagoras
-
-                if (const float distanceFromWaveFront = fabsf(distance - ripple.radius);
-                    distanceFromWaveFront < WAVE_WINDOW && distance > 0.0f) { // Only deform within ripple boundary
-                    const float waveValue = cosf((distance - ripple.radius) * WAVE_FREQUENCY); // Frequency modifier
-                    const float envelope = expf(-powf(distanceFromWaveFront / WAVE_WIDTH, 2.0f)); // Attenuation factor to narrow the ripple width
-                    z += waveValue * ripple.amplitude * envelope;
-                }
-            }
-
-            vertex.vertices.z = z;
+            vertex.vertices.z = _ripples.heightAt(baseX, baseY);
         }
     }
 
     // Once the last ripple is gone the mesh has just been put back to flat.
-    _isFlat = _ripples.empty();
+    _isFlat = _ripples.isEmpty();
 }
 
 void Water::update(const float dt)
 {
-    updateRipples(dt);
+    _ripples.advance(dt);
 
     // At rest there is nothing to move: skip rewriting every vertex each frame.
     if (!_isFlat)
