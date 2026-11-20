@@ -24,7 +24,7 @@ private:
     static constexpr float BORDER = 24.0f;
     static constexpr float BORDER_BOTTOM = 44.0f;
     static constexpr float OFFSET = 12.0f;
-    static const std::string FRAG_PATH;
+    static const std::string FRAG_SHADER;
 
     ax::Sprite* _screen = nullptr;
     ax::Vec2 _size;

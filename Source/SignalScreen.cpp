@@ -19,7 +19,8 @@ const std::vector<Color4B> SignalScreen::TV_COLORS {
 };
 
 const Vec2 SignalScreen::SIZE(880.0f, 660.0f);
-const std::string SignalScreen::FRAG_PATH = "shaders/tv_glitch.frag";
+// Compiled from Source/shaders/tv_glitch.frag at build time (see ax_target_compile_shaders).
+const std::string SignalScreen::FRAG_SHADER = "custom/tv_glitch_fs";
 
 bool SignalScreen::init()
 {
@@ -106,7 +107,7 @@ void SignalScreen::initScreen()
 
 void SignalScreen::initShaderProgram()
 {
-    const auto program = backend::ProgramManager::getInstance()->loadProgram(positionTextureColor_vert, FRAG_PATH, VertexLayoutType::Sprite);
+    const auto program = backend::ProgramManager::getInstance()->loadProgram(positionTextureColor_vert, FRAG_SHADER, VertexLayoutType::Sprite);
     const auto programState = new backend::ProgramState(program);
     _locTime = programState->getUniformLocation("u_time");
     _locAmplitude = programState->getUniformLocation("u_amplitude");
