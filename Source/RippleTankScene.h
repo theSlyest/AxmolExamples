@@ -43,7 +43,7 @@ private:
     void initControls();
 
     // A touch starts the round and, on the water, sends a ripple. Returns true if it was on the water.
-    bool onTouch(ax::Touch* touch);
+    bool onTouch(ax::Touch* touch) const;
 
     // Show what the start, the play and the end of a round look like.
     void onStateChanged(TankGame::State state) const;

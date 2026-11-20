@@ -56,7 +56,7 @@ void RippleTankScene::initControls()
     addChild(_controls);
 }
 
-bool RippleTankScene::onTouch(Touch* touch)
+bool RippleTankScene::onTouch(Touch* touch) const
 {
     _game->start();
 
