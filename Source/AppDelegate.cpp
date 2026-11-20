@@ -38,6 +38,7 @@
 #endif
 
 #if _AX_TESTS
+#   include "FileUtils.h"
 #   include "doctest/doctest.h"
 #endif
 
