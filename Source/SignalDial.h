@@ -7,19 +7,14 @@
 class SignalDial : public ax::DrawNode
 {
 public:
-    static float getSpeed() { return 0.3f * DIAL_WIDTH; }
-
     bool init() override;
     
     // implement the "static create()" method manually
     CREATE_FUNC(SignalDial);
 
-    float tuneBy(float shift) const;
+    // Show the tuning arrow at a position between 0 (left end) and 1 (right end).
+    void setValue(float value) const;
 
-    void reset() const;
-
-    float getValue() const { return _arrow->getPositionX() / DIAL_WIDTH; }
-    
     void lockTo(const float amount) const { _lockBar->setScaleX(amount); }
 
 private:
@@ -48,6 +43,4 @@ private:
     ax::Label* _label        = nullptr;
 
     void initArrow();
-
-    float tuneTo(float x) const;
 };

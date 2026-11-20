@@ -1,5 +1,7 @@
 #include "SignalDial.h"
 
+#include <algorithm>
+
 #include "fmt/format.h"
 
 USING_NS_AX;
@@ -34,11 +36,6 @@ bool SignalDial::init()
     initArrow();
 
     return true;
-}
-
-float SignalDial::tuneBy(const float shift) const
-{
-    return tuneTo(std::max(0.0f, std::min(DIAL_WIDTH, _arrow->getPositionX() + shift)));
 }
 
 void SignalDial::initArrow()
@@ -81,16 +78,9 @@ void SignalDial::initArrow()
     _arrow->addChild(draw);
 }
 
-float SignalDial::tuneTo(const float x) const
+void SignalDial::setValue(const float value) const
 {
-    _arrow->setPositionX(x);
-    const float value = x / DIAL_WIDTH;
-    _label->setString(fmt::format("TUNE {:03d}", static_cast<int>(value * 100)));
-    return value;
-}
-
-void SignalDial::reset() const
-{
-    tuneTo(DIAL_WIDTH / 2.0f);
-    _lockBar->setScaleX(0.0f);
+    const float clamped = std::clamp(value, 0.0f, 1.0f);
+    _arrow->setPositionX(clamped * DIAL_WIDTH);
+    _label->setString(fmt::format("TUNE {:03d}", static_cast<int>(clamped * 100)));
 }

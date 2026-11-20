@@ -36,7 +36,6 @@ bool SignalLockScene::init()
     _dial->setAnchorPoint(Vec2::ANCHOR_MIDDLE_BOTTOM);
     _dial->setPosition(origin.x + size.x / 2.0f, origin.y + DIAL_BOTTOM);
     addChild(_dial);
-    _velocity = SignalDial::getSpeed();
 
     // Help
     const auto help = Label::createWithTTF("Hold LEFT or RIGHT to tune", "fonts/arial.ttf", 24.0f);
@@ -56,6 +55,8 @@ bool SignalLockScene::init()
     _controls->onRestart = [this] { reset(); };
     addChild(_controls);
 
+    initGame();
+
     reset();
 
     return true;
@@ -63,41 +64,24 @@ bool SignalLockScene::init()
 
 void SignalLockScene::update(const float dt)
 {
-    const int direction = _controls->getDirection();
-    if (!_isPlaying) {
-        // The round starts with the first tuning key, including one held through a restart.
-        if (direction == 0 || _endLayer->isVisible())
-            return;
+    _game->update(dt, _controls->getDirection());
+    syncViews(dt);
+}
 
-        startPlaying();
-    }
+void SignalLockScene::initGame()
+{
+    _game = std::make_unique<SignalLockGame>();
+    _game->onScoreChanged = [this](const int score) { _scoreLabel->setString("Score: " + std::to_string(score)); };
+    _game->onTimeChanged = [this](const int time) { _timeLabel->setString(fmt::format("Time: {:2d}", time)); };
+    _game->onGameOver = [this] { gameOver(); };
+}
 
-    _timer += dt;
-    if (_timer >= 1.0f) {
-        _timer -= 1.0f;
-        setTime(_time - 1);
-
-        if (_time == 0)
-            gameOver();
-    }
-
-    const float dist = std::abs(_dial->tuneBy(direction * _velocity * dt) - _station);
-    _screen->setGlitchAmplitude(std::min(1.0f, dist / DETECT_DIST));
+void SignalLockScene::syncViews(const float dt) const
+{
+    _dial->setValue(_game->getDialValue());
+    _dial->lockTo(_game->getLockProgress());
+    _screen->setGlitchAmplitude(_game->getGlitch());
     _screen->update(dt);
-
-    if (dist <= LOCK_DIST) {
-        _lockTime += dt;
-
-        if (_lockTime >= LOCK_DELAY) {
-            setScore(_score + 1);
-            _lockTime = 0.0f;
-            newStation();
-        }
-    }
-    else {
-        _lockTime = 0.0f;
-    }
-    _dial->lockTo(_lockTime / LOCK_DELAY);
 }
 
 void SignalLockScene::initEndLayer(const Size &size)
@@ -119,50 +103,17 @@ void SignalLockScene::initEndLayer(const Size &size)
     _endLayer->addChild(restart);
 }
 
-void SignalLockScene::setScore(const int score)
-{
-    _score = score;
-    _scoreLabel->setString("Score: " + std::to_string(score));
-}
-
-void SignalLockScene::setTime(const int time)
-{
-    _time = time;
-    _timeLabel->setString(fmt::format("Time: {:2d}", time));
-}
-
 void SignalLockScene::reset()
 {
-    _isPlaying = false;
-    _dial->reset();
+    _game->reset();
+    syncViews(0.0f);
     _screen->reset();
-    setScore(0);
-    _timer = 0.0f;
-    setTime(START_TIME);
     _endLayer->setVisible(false);
     scheduleUpdate();
 }
 
-void SignalLockScene::newStation()
-{
-    const float value = _dial->getValue();
-    do {
-        _station = rand_0_1();
-    } while(std::abs(_station - value) < LOCK_SAFE);
-}
-
-void SignalLockScene::startPlaying()
-{
-    if (_isPlaying)
-        return;
-    
-    _isPlaying = true;
-    newStation();
-}
-
 void SignalLockScene::gameOver()
 {
-    _isPlaying = false;
     _endScoreLabel->setString(_scoreLabel->getString());
     _endLayer->setVisible(true);
     unscheduleUpdate();

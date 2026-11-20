@@ -1,8 +1,11 @@
 #pragma once
 
 #include "2d/Scene.h"
+#include <memory>
+
 #include "SignalControls.h"
 #include "SignalDial.h"
+#include "SignalLockGame.h"
 #include "SignalScreen.h"
 
 class SignalLockScene : public ax::Scene
@@ -16,13 +19,6 @@ public:
     void update(float dt) override;
 
 private:
-    // Rules. Distances are fractions of the dial, between 0 and 1.
-    static constexpr float LOCK_DIST = 0.03f;   // how close counts as being on the station
-    static constexpr float LOCK_DELAY = 0.6f;   // seconds on the station to lock it
-    static constexpr float LOCK_SAFE = 0.25f;   // a new station is at least this far from the dial
-    static constexpr float DETECT_DIST = 0.2f;  // the screen starts to clear up inside this distance
-    static constexpr int START_TIME = 45;
-
     // Layout, in pixels.
     static constexpr float LABELS_OFFSET = 20.0f;
     static constexpr float DIAL_BOTTOM = 40.0f;
@@ -31,12 +27,7 @@ private:
 
     static inline const ax::Color4B UI_COLOR = ax::Color4B(0xff, 0xc2, 0x4a, 255);
 
-    int _score = 0;
-    int _time = 0;
-    float _timer = 0.0f;
-    float _velocity = 0.0f; // dial pixels per second while a tuning key is held
-    float _station = 0.0f;
-    float _lockTime = 0.0f;
+    std::unique_ptr<SignalLockGame> _game;
 
     ax::Label* _scoreLabel = nullptr;
     ax::Label* _endScoreLabel = nullptr;
@@ -47,16 +38,12 @@ private:
     SignalDial* _dial = nullptr;
     SignalScreen* _screen = nullptr;
 
-    bool _isPlaying = false;
-
     void initEndLayer(const ax::Size& size);
-    void setScore(int score);
-    void setTime(int time);
+    void initGame();
 
     void reset();
-
-    void newStation();
-
-    void startPlaying();
     void gameOver();
+
+    // Copy the game's state onto the dial and the screen.
+    void syncViews(float dt) const;
 };
