@@ -29,7 +29,7 @@ bool SolvedPanel::init()
     _bestLbl->setPosition(SIZE.width / 2.0f, SIZE.height / 2.0f);
     addChild(_bestLbl);
 
-    const auto label  = Label::createWithTTF("Next / Reset: ", "fonts/arial.ttf", 20.0f);
+    const auto label  = Label::createWithTTF("Play again", "fonts/arial.ttf", 20.0f);
     const Vec2 btnSize = label->getContentSize() + Size(48.0f, 24.0f);
 
     drawRect(Vec2((SIZE.width - btnSize.width) / 2.0f, SIZE.height / 4.0f - btnSize.height / 2.0f),
@@ -46,7 +46,7 @@ bool SolvedPanel::init()
 
 void SolvedPanel::setValues(const std::string &mirrors, const std::string &best) const
 {
-    _mirrorLbl->setString("Mirrors Used: " + mirrors);
+    _mirrorLbl->setString("Mirrors used: " + mirrors);
     _bestLbl->setString("Best: " + best);
 }
 
