@@ -2,7 +2,7 @@
 
 USING_NS_AX;
 
-const Size Emitter::SIZE(32.0f, 40.0f);
+const Vec2 Emitter::SIZE(32.0f, 40.0f);
 const Color4F Emitter::COLOR(0.91f, 0.3f, 0.23f, 1.0f);
 const Color4F Emitter::LIGHT_COLOR(0.95f, 0.77f, 0.06f, 1.0f);
 

@@ -1,7 +1,7 @@
-#ifndef __LASER_MIRROR_VALUE_H__
-#define __LASER_MIRROR_VALUE_H__
+#pragma once
 
-#include "axmol.h"
+#include "2d/DrawNode.h"
+#include "2d/Label.h"
 
 class HudValue : public ax::DrawNode
 {
@@ -12,13 +12,11 @@ public:
     // implement the "static create()" method manually
     static HudValue* create(const std::string& name, const ax::Color4F& color);
 
-    void setValue(const std::string& value);
+    void setValue(const std::string& value) const;
 
 private:
     static constexpr float BORDER = 4.0f;
     static const ax::Color4F BG_COLOR;
 
-    ax::Label* _label;
+    ax::Label* _label = nullptr;
 };
-
-#endif // __LASER_MIRROR_VALUE_H__

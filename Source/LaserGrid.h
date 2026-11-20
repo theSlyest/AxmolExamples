@@ -1,7 +1,6 @@
-#ifndef __LASER_MIRROR_GRID_H__
-#define __LASER_MIRROR_GRID_H__
+#pragma once
 
-#include "axmol.h"
+#include "2d/DrawNode.h"
 #include "GridCell.h"
 #include "Emitter.h"
 
@@ -12,7 +11,7 @@ public:
     static constexpr int COLS = 12;
     static const ax::Color4F BORDER_COLOR;
 
-    virtual bool init();
+    bool init() override;
 
 
     // implement the "static create()" method manually
@@ -22,7 +21,7 @@ public:
     
     void reset(const std::vector<std::vector<CellState>>& states);
 
-    bool refreshBeam() ;
+    bool refreshBeam() const;
 
     bool onTouch(ax::Touch* touch, bool maxReached);
 
@@ -37,20 +36,18 @@ protected:
 
     std::vector<std::vector<GridCell*>> _cells;
 
-    Emitter* _emitter;
-    LaserSide _emitterSide;
-    int _emitterRow;
-    int _emitterCol;
+    Emitter* _emitter = nullptr;
+    LaserSide _emitterSide = LaserSide::LEFT;
+    int _emitterRow = 0;
+    int _emitterCol = 0;
 
-    int _mirrorCount;
-    int _isTargetReached;
+    int _mirrorCount = 0;
+    int _isTargetReached = 0;
 
     void initCells();
     void initEmitter();
 
     LaserSide invertSide(LaserSide side) const;
 
-    void clearBeam();
+    void clearBeam() const;
 };
-
-#endif // __LASER_MIRROR_GRID_H__

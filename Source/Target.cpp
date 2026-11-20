@@ -15,16 +15,16 @@ bool Target::init()
 
     _state = CellState::TARGET;
 
-    Vec2 center(SIZE / 2.0f, SIZE / 2.0f);
-    Size size(SIZE, SIZE);
+    constexpr Vec2 center(SIZE / 2.0f, SIZE / 2.0f);
+    constexpr Vec2 size(SIZE, SIZE);
 
     _lightNode = DrawNode::create();
     _lightNode->drawCircle(center, LIGHT_RADIUS, 0.0f, LIGHT_RADIUS * M_PI, false, Emitter::LIGHT_COLOR);
     _lightNode->setContentSize(size);
     _lightNode->setVisible(false);
     addChild(_lightNode);
-    
-    auto circles = DrawNode::create();
+
+    const auto circles = DrawNode::create();
     circles->drawSolidCircle(center, INNER_RADIUS, 0.0f, INNER_RADIUS * M_PI, COLOR);
     circles->drawCircle(center, OUTER_RADIUS, 0.0f, OUTER_RADIUS * M_PI, false, COLOR, OUTER_WIDTH);
     circles->setContentSize(size);
@@ -33,9 +33,9 @@ bool Target::init()
     return true;
 }
 
-bool Target::drawBeam(LaserSide from, LaserSide &to)
+bool Target::drawBeam(const LaserSide from, LaserSide &)
 {
-    Vec2 center(SIZE / 2.0f, SIZE / 2.0f);
+    constexpr Vec2 center(SIZE / 2.0f, SIZE / 2.0f);
     switch (from) {
         case LaserSide::LEFT:
             _beamNode->drawLine(Vec2(-1.0f, SIZE / 2.0f), center, BEAM_COLOR);

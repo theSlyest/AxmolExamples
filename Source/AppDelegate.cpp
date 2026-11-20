@@ -24,6 +24,11 @@
  ****************************************************************************/
 
 #include "AppDelegate.h"
+#include "Director.h"
+#include "RenderView.h"
+#include "RenderViewImpl.h"
+#include "Utils.h"
+
 #include "LaserMirrorScene.h"
 
 #define USE_AUDIO_ENGINE 1
@@ -34,6 +39,7 @@
 
 #if _AX_TESTS
 #   include "doctest/doctest.h"
+#   include "FileUtils.h"
 #endif
 
 using namespace ax;
@@ -59,7 +65,7 @@ void AppDelegate::initGfxContextAttrs()
 bool AppDelegate::applicationDidFinishLaunching()
 {
     // initialize director
-    auto director = Director::getInstance();
+    const auto director = Director::getInstance();
     auto renderView   = director->getRenderView();
     if (!renderView)
     {
@@ -84,7 +90,7 @@ bool AppDelegate::applicationDidFinishLaunching()
 
 #if !_AX_TESTS
     // create a scene. it's an autorelease object
-    auto scene = utils::createInstance<LaserMirrorScene>();
+    const auto scene = utils::createInstance<LaserMirrorScene>();
 
     // run
     director->runWithScene(scene);

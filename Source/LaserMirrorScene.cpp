@@ -12,13 +12,11 @@ bool LaserMirrorScene::init()
 {
     //////////////////////////////
     // 1. super init first
-    if ( !Scene::init() )
-    {
+    if (!Scene::init())
         return false;
-    }
 
-    auto visibleSize = Director::getInstance()->getVisibleSize();
-    Vec2 origin = Director::getInstance()->getVisibleOrigin();
+    const auto visibleSize = _director->getVisibleSize();
+    const Vec2 origin = _director->getVisibleOrigin();
 
     initGrid(visibleSize, origin);
     initPanel(visibleSize, origin);
@@ -105,7 +103,7 @@ void LaserMirrorScene::initTouchListener()
 bool LaserMirrorScene::onTouchBegan(Touch *touch, Event *event)
 {
     if (!_isSolved && _grid->onTouch(touch, _grid->countMirrors() == INITIAL_MIRRORS)) {
-        int mirrorCount = _grid->countMirrors();
+        const int mirrorCount = _grid->countMirrors();
         setMirrors(mirrorCount);
         setRemaining(INITIAL_MIRRORS - mirrorCount);
 
@@ -120,19 +118,19 @@ bool LaserMirrorScene::onTouchBegan(Touch *touch, Event *event)
     return false;
 }
 
-void LaserMirrorScene::setBest(int value) 
+void LaserMirrorScene::setBest(const int value)
 {
     _best = value;
     _hudBest->setValue(std::to_string(value)); 
 }
 
-void LaserMirrorScene::setMirrors(int value) 
+void LaserMirrorScene::setMirrors(const int value)
 {
     _mirrorCount = value; 
     _hudMirrors->setValue(std::to_string(value)); 
 }
 
-void LaserMirrorScene::setRemaining(int value) 
+void LaserMirrorScene::setRemaining(const int value) const
 { 
     _hudRemaining->setValue(std::to_string(value)); 
 }
@@ -158,7 +156,7 @@ void LaserMirrorScene::loadBestValue()
     setBest(UserDefault::getInstance()->getIntegerForKey(BEST_KEY, INITIAL_MIRRORS));
 }
 
-void LaserMirrorScene::saveBestValue()
+void LaserMirrorScene::saveBestValue() const
 {
     UserDefault::getInstance()->setIntegerForKey(BEST_KEY, _best);
     UserDefault::getInstance()->flush();

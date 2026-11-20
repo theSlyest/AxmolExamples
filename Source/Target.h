@@ -1,7 +1,5 @@
-#ifndef __LASER_MIRROR_TARGET_H__
-#define __LASER_MIRROR_TARGET_H__
+#pragma once
 
-#include "axmol.h"
 #include "GridCell.h"
 
 class Target : public GridCell
@@ -10,18 +8,19 @@ public:
     static const ax::Color4F COLOR;
     static const ax::Color4F LIGHT_COLOR;
 
-    virtual bool init();
+    bool init() override;
     
     // implement the "static create()" method manually
     CREATE_FUNC(Target);
 
-    void setLit(bool isLit) { _lightNode->setVisible(isLit); }
-    bool isLit() const { return _lightNode->isVisible(); }
+    void setLit(const bool isLit) const { _lightNode->setVisible(isLit); }
+    bool isLit() const override { return _lightNode->isVisible(); }
 
-    virtual void onTouch() override {}
+    void onTouch() override {}
 
-    virtual bool drawBeam(LaserSide from, LaserSide& to) override;
-    virtual void clearBeam() override;
+protected:
+    bool drawBeam(LaserSide from, LaserSide& to) override;
+    void clearBeam() override;
 
 private:
     static constexpr float INNER_RADIUS = 6.0f;
@@ -29,7 +28,5 @@ private:
     static constexpr float OUTER_WIDTH = 6.0f;
     static constexpr float LIGHT_RADIUS = 21.0f;
 
-    ax::DrawNode* _lightNode;
+    ax::DrawNode* _lightNode = nullptr;
 };
-
-#endif // __LASER_MIRROR_TARGET_H__

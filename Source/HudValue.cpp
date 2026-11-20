@@ -18,7 +18,7 @@ bool HudValue::init(const std::string& name, const Color4F& color)
     setContentSize(size);
 
     drawSolidRect(Vec2::ZERO, Vec2(size), BG_COLOR);
-    float offset = BORDER / 2.0f;
+    constexpr float offset = BORDER / 2.0f;
     drawRect(Vec2(offset, offset), Vec2(size.width - offset, size.height - offset), color, BORDER);
 
     _label->setPosition(size.width / 2.0f, size.height / 2.0f);
@@ -29,8 +29,7 @@ bool HudValue::init(const std::string& name, const Color4F& color)
 
 HudValue *HudValue::create(const std::string& name, const Color4F& color)
 {
-    HudValue *pRet = new(std::nothrow) HudValue();
-    if (pRet && pRet->init(name, color))
+    if (auto* pRet = new (std::nothrow) HudValue(); pRet && pRet->init(name, color))
     {
         pRet->autorelease();
         return pRet;
@@ -43,7 +42,7 @@ HudValue *HudValue::create(const std::string& name, const Color4F& color)
     }
 }
 
-void HudValue::setValue(const std::string &value)
+void HudValue::setValue(const std::string &value) const
 {
     _label->setString(_name + ": " + value);
 }

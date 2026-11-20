@@ -13,7 +13,7 @@ bool GridCell::init()
         return false;
     }
 
-    Size size(SIZE, SIZE);
+    constexpr Vec2 size(SIZE, SIZE);
     setContentSize(size);
 
     _drawNode = DrawNode::create();
@@ -28,7 +28,7 @@ bool GridCell::init()
     return true;
 }
 
-bool GridCell::laserOn(LaserSide from, LaserSide &to)
+bool GridCell::laserOn(const LaserSide from, LaserSide &to)
 {
     _isLit = true;
     return drawBeam(from, to);
@@ -40,7 +40,7 @@ void GridCell::laserOff()
     clearBeam();
 }
 
-bool GridCell::drawBeam(LaserSide from, LaserSide &to)
+bool GridCell::drawBeam(const LaserSide from, LaserSide &to)
 {
     if (from == LaserSide::LEFT || from == LaserSide::RIGHT) {
         _beamNode->drawLine(Vec2(-1.0f, SIZE / 2.0f), Vec2(SIZE + 1.0f, SIZE / 2.0f), BEAM_COLOR, BEAM_WIDTH);

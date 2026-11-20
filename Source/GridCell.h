@@ -1,7 +1,7 @@
-#ifndef __LASER_MIRROR_CELL_H__
-#define __LASER_MIRROR_CELL_H__
+#pragma once
 
-#include "axmol.h"
+#include "2d/DrawNode.h"
+#include "2d/Layer.h"
 
 enum class CellState { EMPTY, MIRROR, WALL, TARGET };
 enum class LaserSide { LEFT, BOTTOM, RIGHT, TOP };
@@ -16,7 +16,7 @@ public:
     static const ax::Color4F BORDER_COLOR;
     static const ax::Color4F BEAM_COLOR;
 
-    virtual bool init();
+    bool init() override;
     
     CellState getState() const { return _state; }
 
@@ -25,18 +25,16 @@ public:
     bool laserOn(LaserSide from, LaserSide& to);
     void laserOff();
 
-    bool isLit() const { return _isLit; }
+    virtual bool isLit() const { return _isLit; }
 
 protected:
-    ax::DrawNode* _drawNode;
-    ax::DrawNode* _beamNode;
+    ax::DrawNode* _drawNode = nullptr;
+    ax::DrawNode* _beamNode = nullptr;
 
-    CellState _state;
+    CellState _state = CellState::EMPTY;
 
-    bool _isLit;
+    bool _isLit = false;
 
     virtual bool drawBeam(LaserSide from, LaserSide& to);
     virtual void clearBeam();
 };
-
-#endif // __LASER_MIRROR_CELL_H__

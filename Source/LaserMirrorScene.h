@@ -1,7 +1,8 @@
-#ifndef __LASER_MIRROR_SCENE_H__
-#define __LASER_MIRROR_SCENE_H__
+#pragma once
 
-#include "axmol.h"
+#include "2d/Scene.h"
+#include "EventListenerTouch.h"
+
 #include "HudValue.h"
 #include "LaserGrid.h"
 #include "SolvedPanel.h"
@@ -11,12 +12,12 @@ class LaserMirrorScene : public ax::Scene
 public:
     static ax::Scene* createScene();
 
-    virtual bool init();
+    bool init() override;
     
     // implement the "static create()" method manually
     CREATE_FUNC(LaserMirrorScene);
 
-    virtual void onExit() override;
+    void onExit() override;
 
     void reset();
 
@@ -38,37 +39,35 @@ private:
     const int EMITTER_POS = 6;
     const char* BEST_KEY = "BEST";
 
-    LaserGrid* _grid;
+    LaserGrid* _grid = nullptr;
 
-    ax::EventListenerTouchOneByOne* _touchListener;
+    ax::EventListenerTouchOneByOne* _touchListener = nullptr;
 
-    bool _isSolved;
+    bool _isSolved = false;
 
-    int _best;
-    int _mirrorCount;
+    int _best = 0;
+    int _mirrorCount = 0;
 
-    HudValue* _hudBest;
-    HudValue* _hudMirrors;
-    HudValue* _hudRemaining;
-    SolvedPanel* _panel;
+    HudValue* _hudBest = nullptr;
+    HudValue* _hudMirrors = nullptr;
+    HudValue* _hudRemaining = nullptr;
+    SolvedPanel* _panel = nullptr;
 
-    void initGrid(const ax::Size& visibleSize, const ax::Vec2 origin);
-    void initPanel(const ax::Size& visibleSize, const ax::Vec2 origin);
-    void initBest(const ax::Size& visibleSize, const ax::Vec2 origin);
-    void initMirrors(const ax::Size& visibleSize, const ax::Vec2 origin);
-    void initRemaining(const ax::Size& visibleSize, const ax::Vec2 origin);
+    void initGrid(const ax::Size& visibleSize, ax::Vec2 origin);
+    void initPanel(const ax::Size& visibleSize, ax::Vec2 origin);
+    void initBest(const ax::Size& visibleSize, ax::Vec2 origin);
+    void initMirrors(const ax::Size& visibleSize, ax::Vec2 origin);
+    void initRemaining(const ax::Size& visibleSize, ax::Vec2 origin);
     void initTouchListener();
 
     bool onTouchBegan(ax::Touch* touch, ax::Event* event);
 
     void setBest(int value);
     void setMirrors(int value);
-    void setRemaining(int value);
+    void setRemaining(int value) const;
 
     void showPanel();
 
     void loadBestValue();
-    void saveBestValue();
+    void saveBestValue() const;
 };
-
-#endif // __LASER_MIRROR_SCENE_H__

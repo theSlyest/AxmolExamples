@@ -7,9 +7,7 @@ const Color4F Mirror::MIRROR_COLOR(1.0f, 1.0f, 1.0f, 1.0f);
 bool Mirror::init()
 {
     if (!GridCell::init())
-    {
         return false;
-    }
 
     _state = CellState::EMPTY;
 
@@ -22,10 +20,10 @@ bool Mirror::init()
     return true;
 }
 
-void Mirror::drawMirror()
+void Mirror::drawMirror() const
 {
     _mirrorNode->clear();
-    float offset = (SIZE - MIRROR_SIZE) / 2.0f;
+    constexpr float offset = (SIZE - MIRROR_SIZE) / 2.0f;
     if (_isTopLeft)
         _mirrorNode->drawLine(Vec2(offset, SIZE - offset), Vec2(SIZE - offset, offset), MIRROR_COLOR, WIDTH);
     else
@@ -49,9 +47,9 @@ void Mirror::onTouch()
     }
 }
 
-bool Mirror::drawReflectedBeam(LaserSide from, LaserSide &to)
+bool Mirror::drawReflectedBeam(const LaserSide from, LaserSide &to) const
 {
-    Vec2 center(SIZE / 2.0f, SIZE / 2.0f);
+    constexpr Vec2 center(SIZE / 2.0f, SIZE / 2.0f);
     if (_isTopLeft) {
         if (from == LaserSide::LEFT || from == LaserSide::BOTTOM) {
             _beamNode->drawLine(Vec2(-1.0f, SIZE / 2.0f), center, BEAM_COLOR, BEAM_WIDTH);
@@ -80,7 +78,7 @@ bool Mirror::drawReflectedBeam(LaserSide from, LaserSide &to)
     return true;
 }
 
-bool Mirror::drawBeam(LaserSide from, LaserSide &to)
+bool Mirror::drawBeam(const LaserSide from, LaserSide &to)
 {
     return _state == CellState::EMPTY ? GridCell::drawBeam(from, to) : drawReflectedBeam(from, to);
 }

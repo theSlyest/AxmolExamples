@@ -18,14 +18,12 @@ const std::map<LaserSide, std::pair<int, int>> LaserGrid::SHIFTS {
 bool LaserGrid::init()
 {
     if (!DrawNode::init())
-    {
         return false;
-    }
 
-    Size size(2.0f * BORDER + GridCell::SIZE * COLS, 2.0f * BORDER + GridCell::SIZE * ROWS);
+    constexpr Vec2 size(2.0f * BORDER + GridCell::SIZE * COLS, 2.0f * BORDER + GridCell::SIZE * ROWS);
     setContentSize(size);
 
-    float borderOffset = BORDER / 2.0f;
+    constexpr float borderOffset = BORDER / 2.0f;
     drawRect(Vec2(borderOffset, borderOffset), Vec2(size.width - borderOffset, size.height - borderOffset), BORDER_COLOR, BORDER);
 
     initCells();
@@ -41,7 +39,7 @@ bool LaserGrid::init()
 void LaserGrid::initCells()
 {
     for (int r = 0; r < ROWS; ++r) {
-        _cells.push_back(std::vector<GridCell *>(COLS, nullptr));
+        _cells.emplace_back(COLS, nullptr);
     }
 }
 
@@ -53,10 +51,10 @@ void LaserGrid::initEmitter()
 
 LaserSide LaserGrid::invertSide(LaserSide side) const
 {
-    return (LaserSide)(((int)side + 2) % (int)4);
+    return static_cast<LaserSide>((static_cast<int>(side) + 2) % 4);
 }
 
-void LaserGrid::positionEmitter(LaserSide side, int position)
+void LaserGrid::positionEmitter(const LaserSide side, const int position)
 {
     _emitterSide = side;
 
@@ -67,6 +65,7 @@ void LaserGrid::positionEmitter(LaserSide side, int position)
 
     switch (side)
     {
+    default:
     case LaserSide::LEFT:
         _emitterRow = position;
         _emitterCol = 0;
@@ -82,6 +81,7 @@ void LaserGrid::positionEmitter(LaserSide side, int position)
         y = BORDER + position * GridCell::SIZE + padding;
         angle = 180.0f;
         break;
+
     case LaserSide::BOTTOM:
         _emitterRow = 0;
         _emitterCol = position;
@@ -132,7 +132,7 @@ void LaserGrid::reset(const std::vector<std::vector<CellState>> &states)
     _mirrorCount = 0;
 }
 
-void LaserGrid::clearBeam()
+void LaserGrid::clearBeam() const
 {
     for (auto& row : _cells) {
         for (GridCell* cell : row) {
@@ -142,7 +142,7 @@ void LaserGrid::clearBeam()
     }
 }
 
-bool LaserGrid::refreshBeam()
+bool LaserGrid::refreshBeam() const
 {
     clearBeam();
 
@@ -183,7 +183,7 @@ bool LaserGrid::onTouch(Touch *touch, bool maxReached)
                 if (cell->getTag() == 1)
                     return true;
 
-                    CellState state = cell->getState();
+                CellState state = cell->getState();
                 if (state == CellState::EMPTY || state == CellState::MIRROR) {
 
                     if (state == CellState::EMPTY && maxReached)
