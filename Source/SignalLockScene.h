@@ -1,7 +1,7 @@
 #pragma once
 
 #include "2d/Scene.h"
-#include "EventListenerKeyboard.h"
+#include "SignalControls.h"
 #include "SignalDial.h"
 #include "SignalScreen.h"
 
@@ -34,8 +34,7 @@ private:
     int _score = 0;
     int _time = 0;
     float _timer = 0.0f;
-    float _speed = 0.0f;
-    float _velocity = 0.0f;
+    float _velocity = 0.0f; // dial pixels per second while a tuning key is held
     float _station = 0.0f;
     float _lockTime = 0.0f;
 
@@ -43,7 +42,7 @@ private:
     ax::Label* _endScoreLabel = nullptr;
     ax::Label* _timeLabel = nullptr;
     ax::LayerColor* _endLayer = nullptr;
-    ax::EventListenerKeyboard* _keyListener = nullptr;
+    SignalControls* _controls = nullptr;
 
     SignalDial* _dial = nullptr;
     SignalScreen* _screen = nullptr;
@@ -55,9 +54,6 @@ private:
     void setTime(int time);
 
     void reset();
-
-    void onKeyPressed(ax::EventKeyboard::KeyCode key);
-    void onKeyReleased(ax::EventKeyboard::KeyCode key);
 
     void newStation();
 

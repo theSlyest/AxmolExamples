@@ -1,7 +1,6 @@
 #include "SignalLockScene.h"
 
 #include "Director.h"
-#include "EventDispatcher.h"
 #include "fmt/format.h"
 
 USING_NS_AX;
@@ -52,11 +51,10 @@ bool SignalLockScene::init()
 
     initEndLayer(size);
 
-    // Keyboard listener
-    _keyListener = EventListenerKeyboard::create();
-    _keyListener->onKeyPressed = [this](const EventKeyboard::KeyCode key, Event *) { onKeyPressed(key); };
-    _keyListener->onKeyReleased = [this](const EventKeyboard::KeyCode key, Event *) { onKeyReleased(key); };
-    _eventDispatcher->addEventListenerWithSceneGraphPriority(_keyListener, this);
+    // Controls
+    _controls = SignalControls::create();
+    _controls->onRestart = [this] { reset(); };
+    addChild(_controls);
 
     reset();
 
@@ -65,8 +63,14 @@ bool SignalLockScene::init()
 
 void SignalLockScene::update(const float dt)
 {
-    if (!_isPlaying)
-        return;
+    const int direction = _controls->getDirection();
+    if (!_isPlaying) {
+        // The round starts with the first tuning key, including one held through a restart.
+        if (direction == 0 || _endLayer->isVisible())
+            return;
+
+        startPlaying();
+    }
 
     _timer += dt;
     if (_timer >= 1.0f) {
@@ -77,7 +81,7 @@ void SignalLockScene::update(const float dt)
             gameOver();
     }
 
-    const float dist = std::abs(_dial->tuneBy(_speed * dt) - _station);
+    const float dist = std::abs(_dial->tuneBy(direction * _velocity * dt) - _station);
     _screen->setGlitchAmplitude(std::min(1.0f, dist / DETECT_DIST));
     _screen->update(dt);
 
@@ -135,64 +139,8 @@ void SignalLockScene::reset()
     setScore(0);
     _timer = 0.0f;
     setTime(START_TIME);
-    _speed = 0.0f;
     _endLayer->setVisible(false);
     scheduleUpdate();
-}
-
-void SignalLockScene::onKeyPressed(const EventKeyboard::KeyCode key)
-{
-    switch (key)
-    {
-    case EventKeyboard::KeyCode::KEY_LEFT_ARROW:
-    case EventKeyboard::KeyCode::KEY_A:
-        if (_endLayer->isVisible())
-            return;
-
-        startPlaying();
-        if (_speed == 0.0f)
-            _speed = -_velocity;
-
-        break;
-    
-    case EventKeyboard::KeyCode::KEY_RIGHT_ARROW:
-    case EventKeyboard::KeyCode::KEY_D:
-        if (_endLayer->isVisible())
-            return;
-
-        startPlaying();
-        if (_speed == 0.0f)
-            _speed = _velocity;
-        break;
-    
-    case EventKeyboard::KeyCode::KEY_R:
-        reset();
-        break;
-
-    default:
-        break;
-    }
-}
-
-void SignalLockScene::onKeyReleased(const EventKeyboard::KeyCode key)
-{
-    switch (key)
-    {
-    case EventKeyboard::KeyCode::KEY_LEFT_ARROW:
-    case EventKeyboard::KeyCode::KEY_A:
-        if (_speed == -_velocity)
-            _speed = 0.0f;
-        break;
-    
-    case EventKeyboard::KeyCode::KEY_RIGHT_ARROW:
-    case EventKeyboard::KeyCode::KEY_D:
-        if (_speed == _velocity)
-            _speed = 0.0f;
-        break;
-
-    default:
-        break;
-    }
 }
 
 void SignalLockScene::newStation()
