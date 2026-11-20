@@ -46,7 +46,7 @@ bool SignalLockScene::init()
     // Screen
     _screen = SignalScreen::create();
     _screen->setAnchorPoint(Vec2::ANCHOR_MIDDLE_BOTTOM);
-    _screen->setPosition(origin.x + size.x * 0.5f, origin.x + 288.0f);
+    _screen->setPosition(origin.x + size.x * 0.5f, origin.y + 288.0f);
     addChild(_screen);
 
     initEndLayer(size);
@@ -76,7 +76,7 @@ void SignalLockScene::update(const float dt)
             gameOver();
     }
 
-    const float dist = abs(_dial->tuneBy(_speed * dt) - _station);
+    const float dist = std::abs(_dial->tuneBy(_speed * dt) - _station);
     _screen->setGlitchAmplitude(std::min(1.0f, dist / DETECT_DIST));
     _screen->update(dt);
 
@@ -117,7 +117,7 @@ void SignalLockScene::initEndLayer(const Size &size)
 void SignalLockScene::setScore(const int score)
 {
     _score = score;
-    _scoreLabel->setString("Score :" + std::to_string(score));
+    _scoreLabel->setString("Score: " + std::to_string(score));
 }
 
 void SignalLockScene::setTime(const int time)
@@ -199,7 +199,7 @@ void SignalLockScene::newStation()
     const float value = _dial->getValue();
     do {
         _station = rand_0_1();
-    } while(abs(_station - value) < LOCK_SAFE);
+    } while(std::abs(_station - value) < LOCK_SAFE);
 }
 
 void SignalLockScene::startPlaying()
