@@ -1,7 +1,5 @@
 #include "Water.h"
 
-#include <cmath>
-#include <cstdint>
 #include <vector>
 
 USING_NS_AX;
@@ -72,17 +70,17 @@ PolygonInfo Water::createMesh()
     polygonInfo.triangles.vertCount = GRID_LINES * GRID_LINES; 
     polygonInfo.triangles.verts = new V3F_C4B_T2F[polygonInfo.triangles.vertCount];
 
-    int quads = (GRID_LINES - 1) * (GRID_LINES - 1); // Number of quads (grid cells)
+    constexpr int quads = (GRID_LINES - 1) * (GRID_LINES - 1); // Number of quads (grid cells)
     polygonInfo.triangles.indexCount = quads * 6; // 2 triangles per quad
     polygonInfo.triangles.indices = new unsigned short[polygonInfo.triangles.indexCount];
 
     // Populating vertices
     for (int y = 0; y < GRID_LINES; ++y) {
         for (int x = 0; x < GRID_LINES; ++x) {
-            int index = y * GRID_LINES + x;
+            const int index = y * GRID_LINES + x;
             V3F_C4B_T2F& vertex = polygonInfo.triangles.verts[index];
-            vertex.vertices = Vec3(float(x * CELL_SIZE), float(y * CELL_SIZE), 0.0f); // Position
-            vertex.texCoords = Tex2F(float(x) / (GRID_LINES - 1), float(y) / (GRID_LINES - 1)); // UV coords
+            vertex.vertices = Vec3(static_cast<float>(x * CELL_SIZE), static_cast<float>(y * CELL_SIZE), 0.0f); // Position
+            vertex.texCoords = Tex2F(static_cast<float>(x) / (GRID_LINES - 1), static_cast<float>(y) / (GRID_LINES - 1)); // UV coords
             vertex.colors = LineColor; // #2aa9c0
         }
     }
@@ -119,13 +117,13 @@ bool Water::onTouch(Touch* touch, Event* event)
     return false;
 }
 
-void Water::updateRipples(float dt)
+void Water::updateRipples(const float dt)
 {
     for (auto it = _ripples.begin(); it != _ripples.end(); ) {
         it->elapsed += dt;
         it->radius += RIPPLE_SPEED * dt;
 
-        float lifeRatio = it->elapsed / RIPPLE_LIFESPAN;
+        const float lifeRatio = it->elapsed / RIPPLE_LIFESPAN;
         if (lifeRatio >= 1.0f) {
             it = _ripples.erase(it);
         }
@@ -141,7 +139,7 @@ void Water::updateMesh()
     auto& triangles = getPolygonInfo().triangles;
     for (int y = 0; y < GRID_LINES; ++y) {
         for (int x = 0; x < GRID_LINES; ++x) {
-            int index = y * GRID_LINES + x;
+            const int index = y * GRID_LINES + x;
             V3F_C4B_T2F& vertex = triangles.verts[index];
 
             // Baseline 2D point
@@ -152,7 +150,7 @@ void Water::updateMesh()
             for(const auto& ripple : _ripples) {
                 const float dx = baseX - ripple.origin.x;
                 const float dy = baseY - ripple.origin.y;
-                const float distance = sqrtf(dx * dx + dy * dy); // Pythagorus
+                const float distance = sqrtf(dx * dx + dy * dy); // Pythagoras
 
                 if (const float distanceFromWaveFront = fabsf(distance - ripple.radius);
                     distanceFromWaveFront < WAVE_WINDOW && distance > 0.0f) { // Only deform within ripple boundary
@@ -170,7 +168,7 @@ void Water::updateMesh()
     _isFlat = _ripples.empty();
 }
 
-void Water::update(float dt)
+void Water::update(const float dt)
 {
     updateRipples(dt);
 

@@ -13,10 +13,8 @@ bool RippleTankScene::init()
 {
     //////////////////////////////
     // 1. super init first
-    if ( !Scene::init() )
-    {
+    if (!Scene::init())
         return false;
-    }
 
     const auto& visibleSize = _director->getVisibleSize();
     const Vec2& origin = _director->getVisibleOrigin();
@@ -145,8 +143,8 @@ void RippleTankScene::initEndLayer(const Size& visibleSize)
     _endLayer->setVisible(false);
     addChild(_endLayer, 1);
 
-    float midX = visibleSize.width / 2.0f;
-    float midY = visibleSize.height / 2.0f;
+    const float midX = visibleSize.width / 2.0f;
+    const float midY = visibleSize.height / 2.0f;
 
     auto endLabel = Label::createWithTTF("ROUND OVER", "fonts/arial.ttf", 24.0f);
     endLabel->setTextColor(TextColor);
@@ -208,20 +206,20 @@ void RippleTankScene::setStateEnd()
     _endLayer->setVisible(true);
 }
 
-Vec2 RippleTankScene::randomWaterLocation()
+Vec2 RippleTankScene::randomWaterLocation() const
 {
-    const float padding = 16.0f;
+    constexpr float padding = 16.0f;
     return Vec2(
         random(padding, _waterSize.width - padding),
         random(padding, _waterSize.height - padding));
 }
 
-bool RippleTankScene::isWithinReach(Vec2 posA, Vec2 posB)
+bool RippleTankScene::isWithinReach(const Vec2 posA, const Vec2 posB)
 {
     return posA.getDistance(posB) <= Water::RIPPLE_REACH;
 }
 
-void RippleTankScene::respawnContact(Contact* contact, ax::Vec2 touchLocation)
+void RippleTankScene::respawnContact(Contact* contact, const Vec2 touchLocation)
 {
     Vec2 newLoc;
     do {
@@ -231,7 +229,7 @@ void RippleTankScene::respawnContact(Contact* contact, ax::Vec2 touchLocation)
     contact->setRandomDirection();
 }
 
-void RippleTankScene::checkContactReached(Vec2 touchLocation)
+void RippleTankScene::checkContactReached(const Vec2 touchLocation)
 {
     for (Contact* contact : _contacts) {
         if (isWithinReach(touchLocation, contact->getPosition())) {
@@ -241,7 +239,7 @@ void RippleTankScene::checkContactReached(Vec2 touchLocation)
     }
 }
 
-void RippleTankScene::updateContact(float dt, Contact* contact)
+void RippleTankScene::updateContact(const float dt, Contact* contact) const
 {
     Vec2 pos = contact->getPosition();
     pos += contact->getDirection() * dt;
@@ -272,7 +270,7 @@ void RippleTankScene::updateTimer()
     }
 }
 
-void RippleTankScene::update(float dt)
+void RippleTankScene::update(const float dt)
 {
     for (Contact* contact : _contacts) {
         updateContact(dt, contact);

@@ -4,10 +4,8 @@ USING_NS_AX;
 
 bool Contact::init()
 {
-    if ( !DrawNode::init() )
-    {
+    if (!DrawNode::init())
         return false;
-    }
 
     constexpr float diameter = RADIUS * 2.0f;
     setContentSize(Size(diameter, diameter));

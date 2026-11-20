@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "axmol.h"
+#include "Platform/Application.h"
 
 /**
 @brief    The axmol Application.

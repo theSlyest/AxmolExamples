@@ -63,12 +63,12 @@ private:
     void setStatePlay();
     void setStateEnd();
 
-    ax::Vec2 randomWaterLocation();
+    ax::Vec2 randomWaterLocation() const;
     void checkContactReached(ax::Vec2 touchLocation);
     void respawnContact(Contact* contact, ax::Vec2 touchLocation);
     bool isWithinReach(ax::Vec2 posA, ax::Vec2 posB);
 
-    void updateContact(float dt, Contact* contact);
+    void updateContact(float dt, Contact* contact) const;
     void updateTimer();
 };
 

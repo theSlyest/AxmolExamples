@@ -24,7 +24,12 @@
  ****************************************************************************/
 
 #include "AppDelegate.h"
+
+#include "Director.h"
+#include "RenderView.h"
+#include "RenderViewImpl.h"
 #include "RippleTankScene.h"
+#include "Utils.h"
 
 #define USE_AUDIO_ENGINE 1
 
@@ -34,6 +39,7 @@
 
 #if _AX_TESTS
 #   include "doctest/doctest.h"
+#    include "FileUtils.h"
 #endif
 
 using namespace ax;
@@ -59,8 +65,8 @@ void AppDelegate::initGfxContextAttrs()
 bool AppDelegate::applicationDidFinishLaunching()
 {
     // initialize director
-    auto director = Director::getInstance();
-    auto renderView   = director->getRenderView();
+    const auto director = Director::getInstance();
+    auto renderView = director->getRenderView();
     if (!renderView)
     {
 #if (AX_TARGET_PLATFORM != AX_PLATFORM_ANDROID) && (AX_TARGET_PLATFORM != AX_PLATFORM_IOS)
@@ -84,7 +90,7 @@ bool AppDelegate::applicationDidFinishLaunching()
 
 #if !_AX_TESTS
     // create a scene. it's an autorelease object
-    auto scene = utils::createInstance<RippleTankScene>();
+    const auto scene = utils::createInstance<RippleTankScene>();
 
     // run
     director->runWithScene(scene);
