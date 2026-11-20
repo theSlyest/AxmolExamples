@@ -12,8 +12,8 @@ bool SignalLockScene::init()
     if ( !Scene::init() )
         return false;
 
-    const Vec2& size = Director::getInstance()->getVisibleSize();
-    const Vec2& origin = Director::getInstance()->getVisibleOrigin();
+    const Vec2& size = _director->getVisibleSize();
+    const Vec2& origin = _director->getVisibleOrigin();
 
     const auto bg = LayerColor::create(Color4B(0x0b, 0x0f, 0x1a, 255));
     addChild(bg);
@@ -35,19 +35,19 @@ bool SignalLockScene::init()
     // Dial
     _dial = SignalDial::create();
     _dial->setAnchorPoint(Vec2::ANCHOR_MIDDLE_BOTTOM);
-    _dial->setPosition(origin.x + size.x / 2.0f, 40.0f);
+    _dial->setPosition(origin.x + size.x / 2.0f, origin.y + DIAL_BOTTOM);
     addChild(_dial);
     _velocity = SignalDial::getSpeed();
 
     // Help
     const auto help = Label::createWithTTF("Hold LEFT or RIGHT to tune", "fonts/arial.ttf", 24.0f);
-    help->setPosition(origin.x + size.x / 2.0f, origin.y + 240.0f);
+    help->setPosition(origin.x + size.x / 2.0f, origin.y + HELP_BOTTOM);
     addChild(help);
 
     // Screen
     _screen = SignalScreen::create();
     _screen->setAnchorPoint(Vec2::ANCHOR_MIDDLE_BOTTOM);
-    _screen->setPosition(origin.x + size.x * 0.5f, origin.y + 288.0f);
+    _screen->setPosition(origin.x + size.x * 0.5f, origin.y + SCREEN_BOTTOM);
     addChild(_screen);
 
     initEndLayer(size);

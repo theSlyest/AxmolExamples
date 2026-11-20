@@ -16,14 +16,20 @@ public:
     void update(float dt) override;
 
 private:
-    const float LABELS_OFFSET = 20.0f;
-    const float LOCK_DIST = 0.03f;
-    const float LOCK_DELAY = 0.6f;
-    const float LOCK_SAFE = 0.25f;
-    const float DETECT_DIST = 0.2f;
-    const int START_TIME = 45;
+    // Rules. Distances are fractions of the dial, between 0 and 1.
+    static constexpr float LOCK_DIST = 0.03f;   // how close counts as being on the station
+    static constexpr float LOCK_DELAY = 0.6f;   // seconds on the station to lock it
+    static constexpr float LOCK_SAFE = 0.25f;   // a new station is at least this far from the dial
+    static constexpr float DETECT_DIST = 0.2f;  // the screen starts to clear up inside this distance
+    static constexpr int START_TIME = 45;
 
-    const ax::Color4B UI_COLOR = ax::Color4B(0xff, 0xc2, 0x4a, 255);
+    // Layout, in pixels.
+    static constexpr float LABELS_OFFSET = 20.0f;
+    static constexpr float DIAL_BOTTOM = 40.0f;
+    static constexpr float HELP_BOTTOM = 240.0f;
+    static constexpr float SCREEN_BOTTOM = 288.0f;
+
+    static inline const ax::Color4B UI_COLOR = ax::Color4B(0xff, 0xc2, 0x4a, 255);
 
     int _score = 0;
     int _time = 0;
