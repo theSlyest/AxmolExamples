@@ -112,6 +112,7 @@ bool Water::onTouch(Touch* touch, Event* event)
 {
     if (getBoundingBox().containsPoint(touch->getLocation())) {
         _ripples.emplace_back(convertTouchToNodeSpace(touch));
+        _isFlat = false;
         return true;
     }
 
@@ -164,27 +165,22 @@ void Water::updateMesh()
             vertex.vertices.z = z;
         }
     }
+
+    // Once the last ripple is gone the mesh has just been put back to flat.
+    _isFlat = _ripples.empty();
 }
 
 void Water::update(float dt)
 {
     updateRipples(dt);
-    updateMesh();
+
+    // At rest there is nothing to move: skip rewriting every vertex each frame.
+    if (!_isFlat)
+        updateMesh();
 }
 
 void Water::flatten()
 {
-    unscheduleUpdate();
     _ripples.clear();
-
-    auto& triangles = getPolygonInfo().triangles;
-    for (int y = 0; y < GRID_LINES; ++y) {
-        for (int x = 0; x < GRID_LINES; ++x) {
-            int index = y * GRID_LINES + x;
-            V3F_C4B_T2F& vertex = triangles.verts[index];
-            vertex.vertices.z = 0.0f;
-        }
-    }
-
-    scheduleUpdate();
+    updateMesh(); // without ripples, every vertex goes back to z = 0
 }

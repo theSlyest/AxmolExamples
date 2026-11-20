@@ -45,6 +45,7 @@ private:
     static const ax::Color4B LineColor;
 
     std::deque<Ripple> _ripples;
+    bool _isFlat = true; // the mesh is at rest, so there is nothing to update
 
     ax::Texture2D* createSurface();
     ax::PolygonInfo createMesh();
