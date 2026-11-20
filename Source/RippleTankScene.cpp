@@ -2,6 +2,7 @@
 
 #include "Director.h"
 #include "EventDispatcher.h"
+#include "fmt/format.h"
 
 USING_NS_AX;
 
@@ -17,8 +18,8 @@ bool RippleTankScene::init()
         return false;
     }
 
-    const auto& visibleSize = Director::getInstance()->getVisibleSize();
-    const Vec2& origin = Director::getInstance()->getVisibleOrigin();
+    const auto& visibleSize = _director->getVisibleSize();
+    const Vec2& origin = _director->getVisibleOrigin();
 
     const auto backgroundLayer = LayerColor::create(Color4B(10, 20, 34, 255)); // #0a1422
     addChild(backgroundLayer);
@@ -59,13 +60,13 @@ void RippleTankScene::initTimerLabel(const Vec2& origin, const Size& visibleSize
 void RippleTankScene::setScore(int score)
 {
     _score = score;
-    _scoreLabel->setString(StringUtils::format("Score: %d", score));
+    _scoreLabel->setString(fmt::format("Score: {}", score));
 }
 
 void RippleTankScene::setTimer(int timer)
 {
     _timer = timer;
-    _timerLabel->setString(StringUtils::format("Timer: %d", timer));
+    _timerLabel->setString(fmt::format("Timer: {}", timer));
 }
 
 void RippleTankScene::initWater(const Size& visibleSize)
