@@ -13,7 +13,7 @@ public:
     CREATE_FUNC(SignalDial);
 
     // Show the tuning arrow at a position between 0 (left end) and 1 (right end).
-    void setValue(float value) const;
+    void setValue(float value);
 
     void lockTo(const float amount) const { _lockBar->setScaleX(amount); }
 
@@ -41,6 +41,7 @@ private:
     ax::DrawNode* _arrow = nullptr;
     ax::LayerColor* _lockBar = nullptr;
     ax::Label* _label        = nullptr;
+    int _shownPercent = -1; // the number currently on the label
 
     void initArrow();
 };

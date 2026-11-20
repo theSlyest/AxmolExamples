@@ -78,9 +78,14 @@ void SignalDial::initArrow()
     _arrow->addChild(draw);
 }
 
-void SignalDial::setValue(const float value) const
+void SignalDial::setValue(const float value)
 {
     const float clamped = std::clamp(value, 0.0f, 1.0f);
     _arrow->setPositionX(clamped * DIAL_WIDTH);
-    _label->setString(fmt::format("TUNE {:03d}", static_cast<int>(clamped * 100)));
+
+    // Rebuilding the label text every frame is wasteful: only do it when the number changes.
+    if (const int percent = static_cast<int>(clamped * 100); percent != _shownPercent) {
+        _shownPercent = percent;
+        _label->setString(fmt::format("TUNE {:03d}", percent));
+    }
 }
