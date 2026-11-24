@@ -43,6 +43,9 @@ BundleArtifacts
 .vs/
 *.VC.db
 
+# Ignore macOS ._* files
+**/._*
+
 # Ignore files build by ndk and eclipse
 /libs/
 bin/
